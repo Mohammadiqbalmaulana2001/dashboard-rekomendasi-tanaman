@@ -213,7 +213,7 @@ def classification_report_to_df(y_test_labels, y_pred_labels):
     return df   
 
 # 🔹 **Menampilkan Accuracy Score dalam Persen**
-st.markdown("<h1 style='text-align: center; color: white;'> <br><br>🌱 Model Evaluasi Kinerja</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'> <br><br>🌱 Model Evaluasi Kinerja</h1>", unsafe_allow_html=True)
 st.markdown(f"<h3 style='text-align: center; color: green;'>✅ Accuracy Score: {accuracy * 100:.2f}%</h3>", unsafe_allow_html=True)
 
 # Konversi classification report ke DataFrame
