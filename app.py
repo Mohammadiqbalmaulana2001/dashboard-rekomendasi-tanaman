@@ -115,59 +115,144 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Buat container untuk filter
+with st.expander("🔍 Filter dan Pengaturan Visualisasi", expanded=True):
+    filter_col1, filter_col2 = st.columns([1, 1])
+    
+    with filter_col1:
+        st.subheader("Pemilihan Variabel")
+        selected_pairplot = st.multiselect(
+            "Pilih Variabel untuk Pairplot",
+            ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall'],
+            default=['N', 'P', 'K'],
+            help="Pilih variabel yang ingin Anda bandingkan dalam visualisasi"
+        )
+        # Pengaturan ukuran plot
+        plot_height = st.number_input(
+            "Ukuran Plot",
+            min_value=1,
+            max_value=5,
+            value=3,
+            help="Atur ukuran setiap subplot dalam pairplot"
+        )
+    
+    with filter_col2:
+        st.subheader("Filter Data")
+        # Pastikan kolom label ada
+        if "label" not in df.columns:
+            st.error("Kolom 'label' tidak ditemukan dalam dataset! Periksa nama kolom.")
+            st.stop()
+        
+        # Pilihan label tanaman dengan fitur pencarian
+        all_labels = df["label"].unique().tolist()
+        search_label = st.text_input(
+            "Cari Label Tanaman",
+            help="Ketik untuk mencari label tanaman tertentu"
+        )
+        
+        # Filter label berdasarkan pencarian
+        if search_label:
+            filtered_labels = [label for label in all_labels if search_label.lower() in label.lower()]
+        else:
+            filtered_labels = all_labels
+            
+        selected_labels = st.multiselect(
+            "Pilih Label Tanaman untuk Ditampilkan",
+            options=filtered_labels,
+            default=filtered_labels[:3],
+            help="Pilih tanaman yang ingin Anda bandingkan"
+        )
 
-# Pilihan variabel untuk Pairplot
-selected_pairplot = st.multiselect(
-    "Pilih Variabel untuk Pairplot",
-    ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall'], 
-    default=['N', 'P', 'K']
-)
-
-# Pastikan kolom label ada
-if "label" not in df.columns:
-    st.error("Kolom 'label' tidak ditemukan dalam dataset! Periksa nama kolom.")
-    st.stop()
-
-# Pilihan label tanaman
-selected_labels = st.multiselect(
-    "Pilih Label Tanaman untuk Ditampilkan",
-    df["label"].unique().tolist(),
-    default=df["label"].unique().tolist()[:5]
-)
-
-# Filter data berdasarkan label yang dipilih
 if selected_labels:
-    filtered_df = df.query("label in @selected_labels")
-else:
-    st.warning("Pilih minimal satu label tanaman agar filter dapat diterapkan.")
-    filtered_df = df.copy()
+    with st.expander("⚙️ Pengaturan Sampel per Label", expanded=True):
+        st.subheader("Pengaturan Sampel per Label")
+        
+        # Dictionary untuk menyimpan jumlah sampel per label
+        samples_per_label = {}
+        
+        # Buat kolom untuk pengaturan sampel
+        col_count = 4 
+        cols = st.columns(col_count)
+        
+        for idx, label in enumerate(selected_labels):
+            col_idx = idx % col_count
+            with cols[col_idx]:
+                available_samples = len(df[df['label'] == label])
+                st.write(f"**{label}**")
+                
+                # Input untuk mengatur jumlah sampel
+                n_samples = st.number_input(
+                    f"Jumlah sampel untuk {label}",
+                    min_value=1,
+                    max_value=int(available_samples),
+                    value=min(100, int(available_samples)),
+                    help=f"Masukkan jumlah sampel untuk {label}"
+                )
+                samples_per_label[label] = n_samples
+                
+                # Tampilkan jumlah data yang diambil
+                st.write(f"Data diambil: {n_samples} dari {available_samples}")
+        
+        # Proses sampling data
+        sampled_dfs = []
+        for label, n_samples in samples_per_label.items():
+            label_data = df[df['label'] == label]
+            if len(label_data) > n_samples:
+                sampled_data = label_data.sample(n_samples, random_state=42)
+            else:
+                sampled_data = label_data
+            sampled_dfs.append(sampled_data)
+        
+        # Gabungkan semua data yang telah disampling
+        filtered_df = pd.concat(sampled_dfs)
+        
+        # Informasi hasil sampling
+        st.write("---")
+        total_samples = sum(samples_per_label.values())
+        st.metric(
+            "Total Data Setelah Sampling",
+            f"{len(filtered_df):,} baris"
+        )
 
-# Debugging jumlah data setelah filter
-st.write(f"Jumlah data setelah filter: {filtered_df.shape[0]} baris")
-
-# Pastikan ada variabel yang dipilih sebelum membuat plot
+# Buat visualisasi jika data tersedia
+total_samples = sum(samples_per_label.values())
 if selected_pairplot and not filtered_df.empty:
-    max_samples = 2500
-    if len(filtered_df) > max_samples:
-        filtered_df = filtered_df.sample(max_samples, random_state=42)
-    # Tampilkan jumlah sampel yang digunakan
-    st.info(f"Menampilkan {len(filtered_df):,} sampel dari dataset.")
-
-    # Buat Pairplot
-    sns.set_theme(style="whitegrid")
-    pairplot_fig = sns.pairplot(
-        filtered_df, 
-        vars=selected_pairplot, 
-        hue="label",
-        diag_kind='hist',
-        corner=True,
-        height=3
-    )
-    # Tampilkan di Streamlit
-    st.pyplot(pairplot_fig)
+    with st.spinner("Membuat visualisasi..."):
+        sns.set_theme(style="whitegrid")
+        
+        # Buat Pairplot dengan pengaturan yang ditingkatkan
+        pairplot_fig = sns.pairplot(
+            filtered_df,
+            vars=selected_pairplot,
+            hue="label",
+            # diag_kind='hist',
+            corner=True,
+            height=plot_height,
+            plot_kws={'alpha': 0.6},
+            diag_kws={'alpha': 0.6}
+        )
+        
+        # Atur judul
+        pairplot_fig.fig.suptitle(
+            "Visualisasi Hubungan Antar Variabel",
+            y=1.02,
+            fontsize=16
+        )
+        
+        # Tambahkan label pada setiap subplot
+        for i, var1 in enumerate(selected_pairplot):
+            for j, var2 in enumerate(selected_pairplot):
+                if j < i:
+                    ax = pairplot_fig.axes[i][j]
+                    ax.set_xlabel(f"{var2}")
+                    ax.set_ylabel(f"{var1}")
+                    if i == len(selected_pairplot)-1:
+                        ax.set_xlabel(f"{var2}")
+        
+        # Tampilkan plot
+        st.pyplot(pairplot_fig)
 else:
-    st.warning("Pilih minimal satu variabel dan satu label untuk menampilkan pairplot.")
-
+    st.warning("Pilih minimal satu label tanaman untuk menampilkan pengaturan sampel dan visualisasi.")
 # 🔹 **Memuat Model yang Sudah Disimpan**
 @st.cache_resource
 def load_model():
