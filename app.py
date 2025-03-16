@@ -33,13 +33,11 @@ css = """
 </style>
 """
 st.markdown(css, unsafe_allow_html=True)
-
+st.balloons()
 # Definisikan halaman
 rekomendasi = st.Page("rekomendasi.py", title="Rekomendasi Tanaman", icon="🌱")
 cuaca = st.Page("cuaca.py", title="Cuaca", icon="🔍")
 
 # Buat navigasi
-pg = st.navigation([rekomendasi, cuaca])
-
-# Jalankan halaman yang dipilih
+pg = st.navigation([cuaca,rekomendasi])
 pg.run()
