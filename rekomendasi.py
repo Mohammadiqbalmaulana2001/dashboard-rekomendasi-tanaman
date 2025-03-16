@@ -9,7 +9,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.model_selection import train_test_split
 
-st.set_page_config(page_title="Dashboard Rekomendasi Tanaman", layout="wide")
 
 # Header
 st.markdown("<h1 style='text-align: center;'>🌱 Dashboard Rekomendasi Tanaman 🔍</h1>", unsafe_allow_html=True)
