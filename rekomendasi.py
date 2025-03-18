@@ -431,3 +431,12 @@ if st.button("🔎 Prediksi Tanaman"):
         # 🔹 **Menampilkan Hasil Prediksi**
         st.markdown("<h2 style='text-align: center;'>🌾 Hasil Prediksi Tanaman 🌾</h2>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align: center; color: green;'>🌿 {predicted_label.upper()} 🌿</h3>", unsafe_allow_html=True)
+
+# Add footer
+st.markdown("-----------")
+st.markdown("""
+<div style="text-align: center">
+    <p>Visualisasi dan Prediksi Jenis Tanaman Pertanian</p>
+    <p>© 2025 - Mohammad Iqbal Maulana</p>
+</div>
+""", unsafe_allow_html=True)

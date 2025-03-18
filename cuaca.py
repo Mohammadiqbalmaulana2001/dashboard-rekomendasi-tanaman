@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from datetime import datetime, timedelta
+import plotly.graph_objects as go
+import plotly.express as px
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 # Custom CSS for better styling
@@ -161,10 +166,6 @@ if time_series_data is not None:
             return 'Musim Kemarau'
         
     time_series_data['Musim'] = time_series_data['Bulan'].apply(indonesia_season)
-    
-   # Tambahkan package Plotly
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # Menambahkan judul untuk bagian visualisasi
 st.markdown('<div class="header">Visualisasi Pola Cuaca</div>', unsafe_allow_html=True)
@@ -474,3 +475,135 @@ if apply_filter:
 else:
     # Tampilkan pesan awal
     st.info("Gunakan filter di atas dan klik 'Terapkan Filter' untuk melihat visualisasi.")    
+
+# Menambahkan judul untuk bagian prediksi
+st.markdown('<div class="header">Prediksi Suhu Menggunakan Machine Learning</div>', unsafe_allow_html=True)
+
+# Misalnya, kita akan memprediksi suhu rata-rata (Suhu_Rata_Rata) berdasarkan fitur cuaca lainnya
+features = ['Suhu_Minimum', 'Suhu_Maksimum', 'Kelembaban_Rata_Rata', 'Curah_Hujan', 'Sinar_Matahari', 'Kecepatan_Angin', 'Kecepatan_Angin_Rata_Rata', 'Bulan', 'Hari']
+target = 'Suhu_Rata_Rata'
+
+# Memisahkan fitur dan target
+X = time_series_data[features]
+y = time_series_data[target]
+
+# 2. Membagi data menjadi training dan testing set
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write("jumlah data x train: ", X_train.shape)
+    st.write("jumlah data y train: ", y_train.shape)
+with col2:
+    st.write("jumlah data x test: ", X_test.shape)
+    st.write("jumlah data y test: ", y_test.shape)
+
+# 3. Memilih dan melatih model (Random Forest)
+model = RandomForestRegressor(
+    n_estimators=200,    # Meningkatkan jumlah pohon
+    min_samples_split=10, # Meningkatkan minimum sampel untuk pembagian
+    min_samples_leaf=5,  # Meningkatkan minimum sampel di daun
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+# 4. Memprediksi menggunakan data pengujian
+y_pred_rf = model.predict(X_test)
+
+# Evaluasi Random Forest
+mae_rf = mean_absolute_error(y_test, y_pred_rf)
+mse_rf = mean_squared_error(y_test, y_pred_rf)
+rmse_rf = np.sqrt(mse_rf)
+r2_rf = r2_score(y_test, y_pred_rf)
+mape_rf = np.mean(np.abs((y_test - y_pred_rf) / y_test)) * 100
+
+# Visualisasi hasil Random Forest dengan Plotly
+st.subheader("Visualisasi Hasil Prediksi Random Forest")
+
+# Buat DataFrame untuk plot
+pred_df = pd.DataFrame({
+    'Index': range(len(y_test)),
+    'Actual': y_test.values,
+    'Predicted': y_pred_rf
+})
+
+# Buat figure Plotly
+fig = go.Figure()
+
+# Tambahkan data aktual
+fig.add_trace(go.Scatter(
+    x=pred_df['Index'],
+    y=pred_df['Actual'],
+    mode='lines',
+    name='Actual',
+    line=dict(color='blue', width=2)
+))
+
+# Tambahkan data prediksi
+fig.add_trace(go.Scatter(
+    x=pred_df['Index'],
+    y=pred_df['Predicted'],
+    mode='lines',
+    name='Predicted',
+    line=dict(color='red', width=2, dash='dash')
+))
+
+# Update layout
+fig.update_layout(
+    height=600,
+    xaxis_title='Index',
+    yaxis_title='Suhu Rata-Rata (°C)',
+    title={
+        'text': 'Perbandingan Prediksi dan Aktual Suhu Rata-Rata (Random Forest)',
+        'y':0.95,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top',
+        'font': dict(size=20)
+    },
+    xaxis=dict(
+        showgrid=True,
+        gridcolor='rgba(230, 230, 230, 0.8)'
+    ),
+    yaxis=dict(
+        showgrid=True,
+        gridcolor='rgba(230, 230, 230, 0.8)'
+    ),
+    margin=dict(l=50, r=50, t=100, b=50),
+    plot_bgcolor='white',
+    hovermode='x unified',
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1
+    )
+)
+
+# Tampilkan plot
+st.plotly_chart(fig, use_container_width=True)
+
+# Display evaluation metrics in two columns
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("MAE (Rata-rata Kesalahan)", f"{mae_rf:.2f}")
+    st.metric("MSE (Rata-rata Kesalahan Kuadrat)", f"{mse_rf:.2f}")
+    
+with col2:
+    st.metric("RMSE (Akar Kesalahan Kuadrat)", f"{rmse_rf:.2f}")
+    st.metric("MAPE (Kesalahan Persentase)", f"{mape_rf:.2f}%")
+
+with col3:
+    st.metric("R² (Akurasi Model)", f"{r2_rf:.2f} dari 1.00")
+
+# Add footer
+st.markdown("-----------")
+st.markdown("""
+<div style="text-align: center">
+    <p>Visualisasi dan Prediksi Data Cuaca Rangkaian Waktu</p>
+    <p>© 2025 - Mohammad Iqbal Maulana</p>
+</div>
+""", unsafe_allow_html=True)
