@@ -37,7 +37,9 @@ st.balloons()
 # Definisikan halaman
 rekomendasi = st.Page("rekomendasi.py", title="Rekomendasi Tanaman", icon="🌱")
 cuaca = st.Page("cuaca.py", title="Cuaca", icon="🌡️")
+kelembapan = st.Page("kelembapan.py", title="Kelembapan", icon="💧")
+suhu = st.Page("suhu.py", title="Suhu", icon="🌡️")
 
 # Buat navigasi
-pg = st.navigation([cuaca,rekomendasi])
+pg = st.navigation([suhu,kelembapan,rekomendasi,cuaca])
 pg.run()
