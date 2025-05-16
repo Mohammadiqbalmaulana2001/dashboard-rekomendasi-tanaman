@@ -174,7 +174,7 @@ if time_series_data is not None:
 
 # Visualisasi Pola Cuaca dengan Tab
 st.markdown("---")
-st.markdown("<h2 style='text-align: center; color: #ffff; padding: 10px; border-radius: 5px; margin-bottom: 20px;'>📊 Visualisasi Pola Cuaca</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; padding: 10px; border-radius: 5px; margin-bottom: 20px;'>📊 Visualisasi Pola Cuaca 📊</h2>", unsafe_allow_html=True)
 
 # Filter tanggal untuk visualisasi
 col1, col2 = st.columns(2)
