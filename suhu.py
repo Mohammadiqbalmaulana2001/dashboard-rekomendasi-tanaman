@@ -51,7 +51,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     try:
-        data = pd.read_csv("../Dataset/dataset time series.csv")
+        data = pd.read_csv("./Dataset/dataset time series.csv")
         
         # Mengkonversi kolom bertipe object ke numerik
         for col in ["TN", "RR"]:
