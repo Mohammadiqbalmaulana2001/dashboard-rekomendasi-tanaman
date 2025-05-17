@@ -201,8 +201,7 @@ filtered_vis_data = time_series_data[
 
 # Menghitung periode waktu untuk info
 days_count = (pd.to_datetime(end_date_vis) - pd.to_datetime(start_date_vis)).days + 1
-st.info(f"Menampilkan data {days_count} untuk periode hari dari {start_date_vis} hingga {end_date_vis}")
-
+st.info(f"Menampilkan {days_count} data untuk periode {start_date_vis} hingga {end_date_vis}")
 # Membuat tab
 tab1, tab2, tab3, tab4 = st.tabs([
     "🌡️ Suhu Rata-Rata", 
