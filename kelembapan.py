@@ -1,15 +1,10 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 import joblib
 from datetime import datetime, timedelta
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 st.markdown("""
@@ -170,7 +165,11 @@ if time_series_data is not None:
 
 
 
-# Visualisasi Pola Cuaca dengan Tab
+
+
+
+# 🤖 Visualisasi Pola Cuaca 🤖
+
 st.markdown("---")
 st.markdown("<h2 style='text-align: center; padding: 10px; border-radius: 5px; margin-bottom: 20px;'>📊 Visualisasi Pola Cuaca 📊</h2>", unsafe_allow_html=True)
 
@@ -469,7 +468,12 @@ with tab4:
         """, unsafe_allow_html=True)
 
 
-# Header dengan pemisah
+
+
+
+
+# 🤖Pembagian Dataset Training dan Testing 🤖
+
 st.markdown("---")
 st.markdown(
     "<h2 style='text-align: center;'>🔢 Pembagian Dataset Training dan Testing 🔢</h2>",
@@ -589,516 +593,1119 @@ with col3:
 
 
 
+
+
+# 🤖🤖Evaluasi Model🤖🤖
+
 # Load model .joblib
 model_rf = joblib.load("./Dataset/model_kelembapan_rf.joblib")
-
-model_rf.fit(X_train, y_train)
-y_pred_rf = model_rf.predict(X_test)
-
-mae_rf = mean_absolute_error(y_test, y_pred_rf)
-mse_rf = mean_squared_error(y_test, y_pred_rf)
-rmse_rf = np.sqrt(mse_rf)
-r2_rf = r2_score(y_test, y_pred_rf)
-mape_rf = np.mean(np.abs((y_test - y_pred_rf) / y_test)) * 100
-
-# Tampilkan metrik evaluasi
-st.markdown("---")
-st.markdown("<h2 style='text-align: center;'> Model Random Forest</h2>", unsafe_allow_html=True)
-
-# Visualisasi metrik
-st.markdown("<h3 style='text-align: center;'>📈 Visualisasi Metrik Evaluasi </h3>", unsafe_allow_html=True)
-metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
-values = [mae_rf, mse_rf, rmse_rf, r2_rf, mape_rf]
-colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1']
-        
-metrics_fig = px.bar(
-            x=metrics,
-            y=values,
-            color=metrics,
-            color_discrete_sequence=colors,
-            text=[f'{v:.4f}' if metric != 'MAPE' else f'{v:.2f}%' for metric, v in zip(metrics, values)],
-            labels={'x': 'Metrik', 'y': 'Nilai'},
-        )
-metrics_fig.update_layout(
-            hovermode="x",
-            plot_bgcolor='rgba(240,240,240,0.8)',
-            margin=dict(t=40, b=80),
-            xaxis_title='',
-            yaxis_title="Nilai Metrik",
-            showlegend=False
-        )
-st.plotly_chart(metrics_fig, use_container_width=True)
-
-
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    st.markdown(
-        f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #F44336; background-color: #FFEBEE; padding: 5px; border-radius: 8px;">
-        <div class="metric-title" style='text-align: center; color: #F44336'>MAE</div>
-        <div class="metric-value" style="color: #F44336; text-align: center; font-weight: bold; font-size: 24px">{mae_rf:.4f}</div>
-        <div class="metric-unit" style='text-align: center; color: #F44336'>Rata-rata selisih absolut</div>
-        </div>
-        """, unsafe_allow_html=True
-    )
-        
-with col2:
-    st.markdown(f"""
-            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #2196F3; background-color: #E3F2FD; padding: 5px; border-radius: 8px;">
-                <div class="metric-title" style="color: #2196F3; text-align: center;">MSE</div>
-                <div class="metric-value" style="color: #2196F3; text-align: center; font-weight: bold; font-size: 24px">{mse_rf:.4f}</div>
-                <div class="metric-unit" style="color: #2196F3; text-align: center;">Rata-rata selisih kuadrat </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-with col3:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #4CAF50; background-color: #E8F5E9; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #4CAF50;">RMSE</div>
-            <div class="metric-value" style="color: #4CAF50; text-align: center; font-weight: bold; font-size: 24px">{rmse_rf:.4f}</div>
-            <div class="metric-unit" style="text-align: center; color: #4CAF50;">Akar kuadrat dari MSE</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #FF9800; background-color: #FFF3E0; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #FF9800;">R² Score</div>
-            <div class="metric-value" style="color: #FF9800; text-align: center; font-weight: bold; font-size: 24px">{r2_rf:.4f}</div>
-            <div class="metric-unit" style="text-align: center; color: #FF9800;">Kecocokan model</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col5:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #9C27B0; background-color: #F3E5F5; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #9C27B0;">MAPE</div>
-            <div class="metric-value" style="color: #9C27B0; text-align: center; font-weight: bold; font-size: 24px">{mape_rf:.2f}%</div>
-            <div class="metric-unit" style="text-align: center; color: #9C27B0;">Persentase kesalahan</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-
-# Perbandingan Nilai Aktual dan Prediksi dengan Plotly
-st.markdown("<h3 style='text-align: center; padding-top: 50px'>🔮 Perbandingan Nilai Aktual dan Prediksi</h3>", unsafe_allow_html=True)
-
-# Buat figure Plotly
-actual_vs_pred_fig = go.Figure()
-
-actual_vs_pred_fig.add_trace(go.Scatter(
-    x=np.arange(len(y_test)),
-    y=y_test.values,
-    name='Aktual',
-    line=dict(color= '#008000', width=2),
-    mode='lines',
-    hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
-))
-
-actual_vs_pred_fig.add_trace(go.Scatter(
-    x=np.arange(len(y_pred_rf)),
-    y=y_pred_rf,
-    name='Prediksi',
-    line=dict(color='#4321ce ', width=2, dash='solid'),
-    mode='lines',
-    hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
-))
-
-actual_vs_pred_fig.update_layout(
-    height=600,
-    xaxis_title='Index',
-    yaxis_title='Kelembapan Rata Rata (%)',
-    title={
-        'text': 'Perbandingan Prediksi dan Aktual Kelembapan Rata Rata (Random Forest)',
-        'y':0.95,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top',
-        'font': dict(size=20)
-    },
-    xaxis=dict(
-        showgrid=True,
-        gridcolor='rgba(230, 230, 230, 0.8)'
-    ),
-    yaxis=dict(
-        showgrid=True,
-        gridcolor='rgba(230, 230, 230, 0.8)'
-    ),
-    margin=dict(l=50, r=50, t=100, b=50),
-    plot_bgcolor='white',
-    hovermode='x unified',
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1
-    )
-)
-# Tampilkan plot di Streamlit
-st.plotly_chart(actual_vs_pred_fig, use_container_width=True)
-
-
-y_pred_gb = joblib.load("./Dataset/model_kelembapan_gb.joblib")
-
-mae_gb = mean_absolute_error(y_test, y_pred_gb)
-mse_gb = mean_squared_error(y_test, y_pred_gb)
-rmse_gb = np.sqrt(mse_gb)
-r2_gb = r2_score(y_test, y_pred_gb)
-mape_gb = np.mean(np.abs((y_test - y_pred_gb) / y_test)) * 100
+model_gb = joblib.load("./Dataset/model_kelembapan_gb.joblib")
+model_xgb = joblib.load("./Dataset/model_kelembapan_xgb.joblib")
 
 st.markdown("---")
-st.markdown("<h2 style='text-align: center;'> Model Gradient Boosting </h2>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; padding-top: 20px; padding-bottom: 40px;'>Evaluasi Model Prediksi Kelembapan</h1>", unsafe_allow_html=True)
 
-# Visualisasi metrik
-st.markdown("<h3 style='text-align: center;'>📈 Visualisasi Metrik Evaluasi </h3>", unsafe_allow_html=True)
-metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
-values = [mae_gb, mse_gb, rmse_gb, r2_gb, mape_gb]
-colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1']
-        
-metrics_fig = px.bar(
-            x=metrics,
-            y=values,
-            color=metrics,
-            color_discrete_sequence=colors,
-            text=[f'{v:.4f}' if metric != 'MAPE' else f'{v:.2f}%' for metric, v in zip(metrics, values)],
-            labels={'x': 'Metrik', 'y': 'Nilai'},
-        )
-metrics_fig.update_layout(
-            hovermode="x",
-            plot_bgcolor='rgba(240,240,240,0.8)',
-            margin=dict(t=40, b=80),
-            xaxis_title='',
-            yaxis_title="Nilai Metrik",
-            showlegend=False
-        )
-st.plotly_chart(metrics_fig, use_container_width=True)
+tab_rf, tab_gb, tab_xgb, tab_compare = st.tabs(["Random Forest", "Gradient Boosting", "XGBoost", "Perbandingan Semua Model"])
 
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    st.markdown(
-        f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #F44336; background-color: #FFEBEE; padding: 5px; border-radius: 8px;">
-        <div class="metric-title" style='text-align: center; color: #F44336'>MAE</div>
-        <div class="metric-value" style="color: #F44336; text-align: center; font-weight: bold; font-size: 24px">{mae_gb:.4f}</div>
-        <div class="metric-unit" style='text-align: center; color: #F44336'>Rata-rata selisih absolut</div>
-        </div>
-        """, unsafe_allow_html=True
-    )
-        
-with col2:
-    st.markdown(f"""
-            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #2196F3; background-color: #E3F2FD; padding: 5px; border-radius: 8px;">
-                <div class="metric-title" style="color: #2196F3; text-align: center;">MSE</div>
-                <div class="metric-value" style="color: #2196F3; text-align: center; font-weight: bold; font-size: 24px">{mse_gb:.4f}</div>
-                <div class="metric-unit" style="color: #2196F3; text-align: center;">Rata-rata selisih kuadrat </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-with col3:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #4CAF50; background-color: #E8F5E9; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #4CAF50;">RMSE</div>
-            <div class="metric-value" style="color: #4CAF50; text-align: center; font-weight: bold; font-size: 24px">{rmse_gb:.4f}</div>
-            <div class="metric-unit" style="text-align: center; color: #4CAF50;">Akar kuadrat dari MSE</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #FF9800; background-color: #FFF3E0; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #FF9800;">R² Score</div>
-            <div class="metric-value" style="color: #FF9800; text-align: center; font-weight: bold; font-size: 24px">{r2_gb:.4f}</div>
-            <div class="metric-unit" style="text-align: center; color: #FF9800;">Kecocokan model</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col5:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #9C27B0; background-color: #F3E5F5; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #9C27B0;">MAPE</div>
-            <div class="metric-value" style="color: #9C27B0; text-align: center; font-weight: bold; font-size: 24px">{mape_gb:.2f}%</div>
-            <div class="metric-unit" style="text-align: center; color: #9C27B0;">Persentase kesalahan</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-# Perbandingan Nilai Aktual dan Prediksi
-st.markdown("<h3 style='text-align: center; padding-top: 50px'>🔮 Perbandingan Nilai Aktual dan Prediksi</h3>", unsafe_allow_html=True)
-
-# Buat figure Plotly
-actual_vs_pred_fig = go.Figure()
-
-actual_vs_pred_fig.add_trace(go.Scatter(
-    x=np.arange(len(y_test)),
-    y=y_test.values,
-    name='Aktual',
-    line=dict(color= '#008000', width=2),
-    mode='lines',
-    hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
-))
-
-actual_vs_pred_fig.add_trace(go.Scatter(
-    x=np.arange(len(y_pred_gb)),
-    y=y_pred_gb,
-    name='Prediksi',
-    line=dict(color='#f7592f', width=2, dash='solid'),
-    mode='lines',
-    hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
-))
-
-actual_vs_pred_fig.update_layout(
-    height=600,
-    xaxis_title='Index',
-    yaxis_title='Kelembapan Rata Rata (%)',
-    title={
-        'text': 'Perbandingan Prediksi dan Aktual Kelembapan Rata Rata (Gradient Boosting)',
-        'y':0.95,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top',
-        'font': dict(size=20)
-    },
-    xaxis=dict(
-        showgrid=True,
-        gridcolor='rgba(230, 230, 230, 0.8)'
-    ),
-    yaxis=dict(
-        showgrid=True,
-        gridcolor='rgba(230, 230, 230, 0.8)'
-    ),
-    margin=dict(l=50, r=50, t=100, b=50),
-    plot_bgcolor='white',
-    hovermode='x unified',
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1
-    )
-)
-# Tampilkan plot di Streamlit
-st.plotly_chart(actual_vs_pred_fig, use_container_width=True)
-
-
-y_pred_xgb = joblib.load("./Dataset/model_kelembapan_xgb.joblib")
-mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
-mse_xgb = mean_squared_error(y_test, y_pred_xgb)
-rmse_xgb = np.sqrt(mse_xgb)
-r2_xgb = r2_score(y_test, y_pred_xgb)
-mape_xgb = np.mean(np.abs((y_test - y_pred_xgb) / y_test)) * 100
-
-st.markdown("---")
-st.markdown("<h2 style='text-align: center;'> Model XGBoost </h2>", unsafe_allow_html=True)
-
-# Visualisasi metrik
-st.markdown("<h3 style='text-align: center;'>📈 Visualisasi Metrik Evaluasi </h3>", unsafe_allow_html=True)
-metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
-values = [mae_xgb, mse_xgb, rmse_xgb, r2_xgb, mape_xgb]
-colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1']
-        
-metrics_fig = px.bar(
-            x=metrics,
-            y=values,
-            color=metrics,
-            color_discrete_sequence=colors,
-            text=[f'{v:.4f}' if metric != 'MAPE' else f'{v:.2f}%' for metric, v in zip(metrics, values)],
-            labels={'x': 'Metrik', 'y': 'Nilai'},
-        )
-metrics_fig.update_layout(
-            hovermode="x",
-            plot_bgcolor='rgba(240,240,240,0.8)',
-            margin=dict(t=40, b=80),
-            xaxis_title='',
-            yaxis_title="Nilai Metrik",
-            showlegend=False
-        )
-st.plotly_chart(metrics_fig, use_container_width=True)
-
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    st.markdown(
-        f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #F44336; background-color: #FFEBEE; padding: 5px; border-radius: 8px;">
-        <div class="metric-title" style='text-align: center; color: #F44336'>MAE</div>
-        <div class="metric-value" style="color: #F44336; text-align: center; font-weight: bold; font-size: 24px">{mae_xgb:.4f}</div>
-        <div class="metric-unit" style='text-align: center; color: #F44336'>Rata-rata selisih absolut</div>
-        </div>
-        """, unsafe_allow_html=True
-    )
-        
-with col2:
-    st.markdown(f"""
-            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #2196F3; background-color: #E3F2FD; padding: 5px; border-radius: 8px;">
-                <div class="metric-title" style="color: #2196F3; text-align: center;">MSE</div>
-                <div class="metric-value" style="color: #2196F3; text-align: center; font-weight: bold; font-size: 24px">{mse_xgb:.4f}</div>
-                <div class="metric-unit" style="color: #2196F3; text-align: center;">Rata-rata selisih kuadrat </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-with col3:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #4CAF50; background-color: #E8F5E9; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #4CAF50;">RMSE</div>
-            <div class="metric-value" style="color: #4CAF50; text-align: center; font-weight: bold; font-size: 24px">{rmse_xgb:.4f}</div>
-            <div class="metric-unit" style="text-align: center; color: #4CAF50;">Akar kuadrat dari MSE</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #FF9800; background-color: #FFF3E0; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #FF9800;">R² Score</div>
-            <div class="metric-value" style="color: #FF9800; text-align: center; font-weight: bold; font-size: 24px">{r2_xgb:.4f}</div>
-            <div class="metric-unit" style="text-align: center; color: #FF9800;">Kecocokan model</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col5:
-    st.markdown(f"""
-        <div class="metric-card" style="min-height: 120px;border-left: 4px solid #9C27B0; background-color: #F3E5F5; padding: 5px; border-radius: 8px;">
-            <div class="metric-title" style="text-align: center; color: #9C27B0;">MAPE</div>
-            <div class="metric-value" style="color: #9C27B0; text-align: center; font-weight: bold; font-size: 24px">{mape_xgb:.2f}%</div>
-            <div class="metric-unit" style="text-align: center; color: #9C27B0;">Persentase kesalahan</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-# Perbandingan Nilai Aktual dan Prediksi
-st.markdown("<h3 style='text-align: center; padding-top: 50px'>🔮 Perbandingan Nilai Aktual dan Prediksi</h3>", unsafe_allow_html=True)
-
-# Buat figure Plotly
-actual_vs_pred_fig = go.Figure()
-
-actual_vs_pred_fig.add_trace(go.Scatter(
-    x=np.arange(len(y_test)),
-    y=y_test.values,
-    name='Aktual',
-    line=dict(color= '#008000', width=2),
-    mode='lines',
-    hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
-))
-
-actual_vs_pred_fig.add_trace(go.Scatter(
-    x=np.arange(len(y_pred_xgb)),
-    y=y_pred_xgb,
-    name='Prediksi',
-    line=dict(color='#1c39f4', width=2, dash='solid'),
-    mode='lines',
-    hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
-))
-
-actual_vs_pred_fig.update_layout(
-    height=600,
-    xaxis_title='Index',
-    yaxis_title='Kelembapan Rata Rata (%)',
-    title={
-        'text': 'Perbandingan Prediksi dan Aktual Kelembapan Rata Rata (XGBoost)',
-        'y':0.95,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top',
-        'font': dict(size=20)
-    },
-    xaxis=dict(
-        showgrid=True,
-        gridcolor='rgba(230, 230, 230, 0.8)'
-    ),
-    yaxis=dict(
-        showgrid=True,
-        gridcolor='rgba(230, 230, 230, 0.8)'
-    ),
-    margin=dict(l=50, r=50, t=100, b=50),
-    plot_bgcolor='white',
-    hovermode='x unified',
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1
-    )
-)
-# Tampilkan plot di Streamlit
-st.plotly_chart(actual_vs_pred_fig, use_container_width=True)
-
-st.markdown("---")
-st.markdown("<h2 style='text-align: center;'>Perbandingan Semua Kinerja Model (Kelembapan Rata-Rata)</h2>", unsafe_allow_html=True)
-
-metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
-rf_scores = [mae_rf, mse_rf, rmse_rf, r2_rf, mape_rf]
-gb_scores = [mae_gb, mse_gb, rmse_gb, r2_gb, mape_gb]
-xgb_scores = [mae_xgb, mse_xgb, rmse_xgb, r2_xgb, mape_xgb]
-
-fig = go.Figure()
-
-fig.add_trace(go.Bar(
-    x=metrics,
-    y=rf_scores,
-    name='Random Forest',
-    marker=dict(color='#3498db'),
-    text=[f'{v:.3f}' for v in rf_scores],
-    textposition='auto',
-    hovertemplate='<b>Random Forest</b><br>%{x}: %{y:.3f}<extra></extra>'
-))
-
-fig.add_trace(go.Bar(
-    x=metrics,
-    y=gb_scores,
-    name='Gradient Boosting',
-    marker=dict(color='#2ecc71'),
-    text=[f'{v:.3f}' for v in gb_scores],
-    textposition='auto',
-    hovertemplate='<b>Gradient Boosting</b><br>%{x}: %{y:.3f}<extra></extra>'
-))
-
-fig.add_trace(go.Bar(
-    x=metrics,
-    y=xgb_scores,
-    name='XGBoost',
-    marker=dict(color='#e74c3c'),
-    text=[f'{v:.3f}' for v in xgb_scores],
-    textposition='auto',
-    hovertemplate='<b>XGBoost</b><br>%{x}: %{y:.3f}<extra></extra>'
-))
-
-fig.update_layout(
-    title={
-        'text': 'Perbandingan Kinerja Model (Kelembapan Rata-Rata)',
-        'y': 0.9,
-        'x': 0.5,
-        'xanchor': 'center',
-        'yanchor': 'top'
-    },
-    xaxis_title="Metrik Evaluasi",
-    yaxis_title="Nilai",
-    legend_title="Model",
-    barmode='group',
-    bargap=0.25,
-    bargroupgap=0.1,
-    height=550,
-    font=dict(size=13),
+#-------- Random Forest Tab --------
+with tab_rf:
+    st.markdown("<h2 style='text-align: center;'>Model Random Forest</h2>", unsafe_allow_html=True)
     
-    template='none',
-    plot_bgcolor='white',
-    paper_bgcolor='white',
+    model_rf.fit(X_train, y_train)
+    y_pred_rf = model_rf.predict(X_test)
+    mae_rf = mean_absolute_error(y_test, y_pred_rf)
+    mse_rf = mean_squared_error(y_test, y_pred_rf)
+    rmse_rf = np.sqrt(mse_rf)
+    r2_rf = r2_score(y_test, y_pred_rf)
+    mape_rf = np.mean(np.abs((y_test - y_pred_rf) / y_test)) * 100
 
-    xaxis=dict(showgrid=False),
-    yaxis=dict(showgrid=True, gridcolor='lightgray')
-)
+    # Visualisasi metrik
+    st.markdown("<h3 style='text-align: center;'>📈 Visualisasi Metrik Evaluasi </h3>", unsafe_allow_html=True)
+    metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
+    values = [mae_rf, mse_rf, rmse_rf, r2_rf, mape_rf]
+    colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1']
+            
+    metrics_fig = px.bar(
+                x=metrics,
+                y=values,
+                color=metrics,
+                color_discrete_sequence=colors,
+                text=[f'{v:.4f}' if metric != 'MAPE' else f'{v:.2f}%' for metric, v in zip(metrics, values)],
+                labels={'x': 'Metrik', 'y': 'Nilai'},
+            )
+    metrics_fig.update_layout(
+                hovermode="x",
+                plot_bgcolor='rgba(240,240,240,0.8)',
+                margin=dict(t=40, b=80),
+                xaxis_title='',
+                yaxis_title="Nilai Metrik",
+                showlegend=False
+            )
+    st.plotly_chart(metrics_fig, use_container_width=True)
+
+    # Kartu metrik dalam kolom
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.markdown(
+            f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #F44336; background-color: #FFEBEE; padding: 5px; border-radius: 8px;">
+            <div class="metric-title" style='text-align: center; color: #F44336'>MAE</div>
+            <div class="metric-value" style="color: #F44336; text-align: center; font-weight: bold; font-size: 24px">{mae_rf:.4f}</div>
+            <div class="metric-unit" style='text-align: center; color: #F44336'>Rata-rata selisih absolut</div>
+            </div>
+            """, unsafe_allow_html=True
+        )
+            
+    with col2:
+        st.markdown(f"""
+                <div class="metric-card" style="min-height: 120px;border-left: 4px solid #2196F3; background-color: #E3F2FD; padding: 5px; border-radius: 8px;">
+                    <div class="metric-title" style="color: #2196F3; text-align: center;">MSE</div>
+                    <div class="metric-value" style="color: #2196F3; text-align: center; font-weight: bold; font-size: 24px">{mse_rf:.4f}</div>
+                    <div class="metric-unit" style="color: #2196F3; text-align: center;">Rata-rata selisih kuadrat </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+    with col3:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #4CAF50; background-color: #E8F5E9; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #4CAF50;">RMSE</div>
+                <div class="metric-value" style="color: #4CAF50; text-align: center; font-weight: bold; font-size: 24px">{rmse_rf:.4f}</div>
+                <div class="metric-unit" style="text-align: center; color: #4CAF50;">Akar kuadrat dari MSE</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #FF9800; background-color: #FFF3E0; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #FF9800;">R² Score</div>
+                <div class="metric-value" style="color: #FF9800; text-align: center; font-weight: bold; font-size: 24px">{r2_rf:.4f}</div>
+                <div class="metric-unit" style="text-align: center; color: #FF9800;">Kecocokan model</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #9C27B0; background-color: #F3E5F5; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #9C27B0;">MAPE</div>
+                <div class="metric-value" style="color: #9C27B0; text-align: center; font-weight: bold; font-size: 24px">{mape_rf:.2f}%</div>
+                <div class="metric-unit" style="text-align: center; color: #9C27B0;">Persentase kesalahan</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Perbandingan Nilai Aktual dan Prediksi
+    st.markdown("<h3 style='text-align: center; padding-top: 50px'>🔮 Perbandingan Nilai Aktual dan Prediksi</h3>", unsafe_allow_html=True)
+
+    # Buat figure Plotly
+    actual_vs_pred_fig = go.Figure()
+
+    actual_vs_pred_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_test)),
+        y=y_test.values,
+        name='Aktual',
+        line=dict(color= '#008000', width=2),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
+    ))
+
+    actual_vs_pred_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_pred_rf)),
+        y=y_pred_rf,
+        name='Prediksi',
+        line=dict(color='#4321ce ', width=2, dash='solid'),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
+    ))
+
+    actual_vs_pred_fig.update_layout(
+        height=600,
+        xaxis_title='Index',
+        yaxis_title='Kelembapan Rata Rata (%)',
+        title={
+            'text': 'Perbandingan Prediksi dan Aktual Kelembapan Rata Rata (Random Forest)',
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': dict(size=20)
+        },
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        margin=dict(l=50, r=50, t=100, b=50),
+        plot_bgcolor='white',
+        hovermode='x unified',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    # Tampilkan plot di Streamlit
+    st.plotly_chart(actual_vs_pred_fig, use_container_width=True)
+
+#-------- Gradient Boosting Tab --------
+with tab_gb:
+    st.markdown("<h2 style='text-align: center;'>Model Gradient Boosting</h2>", unsafe_allow_html=True)
+    
+    model_gb.fit(X_train, y_train)
+    y_pred_gb = model_gb.predict(X_test)
+    mae_gb = mean_absolute_error(y_test, y_pred_gb)
+    mse_gb = mean_squared_error(y_test, y_pred_gb)
+    rmse_gb = np.sqrt(mse_gb)
+    r2_gb = r2_score(y_test, y_pred_gb)
+    mape_gb = np.mean(np.abs((y_test - y_pred_gb) / y_test)) * 100
+
+    # Visualisasi metrik
+    st.markdown("<h3 style='text-align: center;'>📈 Visualisasi Metrik Evaluasi </h3>", unsafe_allow_html=True)
+    metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
+    values = [mae_gb, mse_gb, rmse_gb, r2_gb, mape_gb]
+    colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1']
+            
+    metrics_fig = px.bar(
+                x=metrics,
+                y=values,
+                color=metrics,
+                color_discrete_sequence=colors,
+                text=[f'{v:.4f}' if metric != 'MAPE' else f'{v:.2f}%' for metric, v in zip(metrics, values)],
+                labels={'x': 'Metrik', 'y': 'Nilai'},
+            )
+    metrics_fig.update_layout(
+                hovermode="x",
+                plot_bgcolor='rgba(240,240,240,0.8)',
+                margin=dict(t=40, b=80),
+                xaxis_title='',
+                yaxis_title="Nilai Metrik",
+                showlegend=False
+            )
+    st.plotly_chart(metrics_fig, use_container_width=True)
+
+    # Metric cards in columns
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.markdown(
+            f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #F44336; background-color: #FFEBEE; padding: 5px; border-radius: 8px;">
+            <div class="metric-title" style='text-align: center; color: #F44336'>MAE</div>
+            <div class="metric-value" style="color: #F44336; text-align: center; font-weight: bold; font-size: 24px">{mae_gb:.4f}</div>
+            <div class="metric-unit" style='text-align: center; color: #F44336'>Rata-rata selisih absolut</div>
+            </div>
+            """, unsafe_allow_html=True
+        )
+            
+    with col2:
+        st.markdown(f"""
+                <div class="metric-card" style="min-height: 120px;border-left: 4px solid #2196F3; background-color: #E3F2FD; padding: 5px; border-radius: 8px;">
+                    <div class="metric-title" style="color: #2196F3; text-align: center;">MSE</div>
+                    <div class="metric-value" style="color: #2196F3; text-align: center; font-weight: bold; font-size: 24px">{mse_gb:.4f}</div>
+                    <div class="metric-unit" style="color: #2196F3; text-align: center;">Rata-rata selisih kuadrat </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+    with col3:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #4CAF50; background-color: #E8F5E9; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #4CAF50;">RMSE</div>
+                <div class="metric-value" style="color: #4CAF50; text-align: center; font-weight: bold; font-size: 24px">{rmse_gb:.4f}</div>
+                <div class="metric-unit" style="text-align: center; color: #4CAF50;">Akar kuadrat dari MSE</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #FF9800; background-color: #FFF3E0; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #FF9800;">R² Score</div>
+                <div class="metric-value" style="color: #FF9800; text-align: center; font-weight: bold; font-size: 24px">{r2_gb:.4f}</div>
+                <div class="metric-unit" style="text-align: center; color: #FF9800;">Kecocokan model</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #9C27B0; background-color: #F3E5F5; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #9C27B0;">MAPE</div>
+                <div class="metric-value" style="color: #9C27B0; text-align: center; font-weight: bold; font-size: 24px">{mape_gb:.2f}%</div>
+                <div class="metric-unit" style="text-align: center; color: #9C27B0;">Persentase kesalahan</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Perbandingan Nilai Aktual dan Prediksi
+    st.markdown("<h3 style='text-align: center; padding-top: 50px'>🔮 Perbandingan Nilai Aktual dan Prediksi</h3>", unsafe_allow_html=True)
+
+    # Buat figure Plotly
+    actual_vs_pred_fig = go.Figure()
+
+    actual_vs_pred_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_test)),
+        y=y_test.values,
+        name='Aktual',
+        line=dict(color= '#008000', width=2),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
+    ))
+
+    actual_vs_pred_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_pred_gb)),
+        y=y_pred_gb,
+        name='Prediksi',
+        line=dict(color='#f7592f', width=2, dash='solid'),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
+    ))
+
+    actual_vs_pred_fig.update_layout(
+        height=600,
+        xaxis_title='Index',
+        yaxis_title='Kelembapan Rata Rata (%)',
+        title={
+            'text': 'Perbandingan Prediksi dan Aktual Kelembapan Rata Rata (Gradient Boosting)',
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': dict(size=20)
+        },
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        margin=dict(l=50, r=50, t=100, b=50),
+        plot_bgcolor='white',
+        hovermode='x unified',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    # Tampilkan plot di Streamlit
+    st.plotly_chart(actual_vs_pred_fig, use_container_width=True)
+
+#-------- XGBoost Tab --------
+with tab_xgb:
+    st.markdown("<h2 style='text-align: center;'>Model XGBoost</h2>", unsafe_allow_html=True)
+    
+    model_xgb.fit(X_train, y_train)
+    y_pred_xgb = model_xgb.predict(X_test)
+    mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
+    mse_xgb = mean_squared_error(y_test, y_pred_xgb)
+    rmse_xgb = np.sqrt(mse_xgb)
+    r2_xgb = r2_score(y_test, y_pred_xgb)
+    mape_xgb = np.mean(np.abs((y_test - y_pred_xgb) / y_test)) * 100
+
+    # Visualisasi metrik
+    st.markdown("<h3 style='text-align: center;'>📈 Visualisasi Metrik Evaluasi </h3>", unsafe_allow_html=True)
+    metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
+    values = [mae_xgb, mse_xgb, rmse_xgb, r2_xgb, mape_xgb]
+    colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1']
+            
+    metrics_fig = px.bar(
+                x=metrics,
+                y=values,
+                color=metrics,
+                color_discrete_sequence=colors,
+                text=[f'{v:.4f}' if metric != 'MAPE' else f'{v:.2f}%' for metric, v in zip(metrics, values)],
+                labels={'x': 'Metrik', 'y': 'Nilai'},
+            )
+    metrics_fig.update_layout(
+                hovermode="x",
+                plot_bgcolor='rgba(240,240,240,0.8)',
+                margin=dict(t=40, b=80),
+                xaxis_title='',
+                yaxis_title="Nilai Metrik",
+                showlegend=False
+            )
+    st.plotly_chart(metrics_fig, use_container_width=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.markdown(
+            f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #F44336; background-color: #FFEBEE; padding: 5px; border-radius: 8px;">
+            <div class="metric-title" style='text-align: center; color: #F44336'>MAE</div>
+            <div class="metric-value" style="color: #F44336; text-align: center; font-weight: bold; font-size: 24px">{mae_xgb:.4f}</div>
+            <div class="metric-unit" style='text-align: center; color: #F44336'>Rata-rata selisih absolut</div>
+            </div>
+            """, unsafe_allow_html=True
+        )
+            
+    with col2:
+        st.markdown(f"""
+                <div class="metric-card" style="min-height: 120px;border-left: 4px solid #2196F3; background-color: #E3F2FD; padding: 5px; border-radius: 8px;">
+                    <div class="metric-title" style="color: #2196F3; text-align: center;">MSE</div>
+                    <div class="metric-value" style="color: #2196F3; text-align: center; font-weight: bold; font-size: 24px">{mse_xgb:.4f}</div>
+                    <div class="metric-unit" style="color: #2196F3; text-align: center;">Rata-rata selisih kuadrat </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+    with col3:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #4CAF50; background-color: #E8F5E9; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #4CAF50;">RMSE</div>
+                <div class="metric-value" style="color: #4CAF50; text-align: center; font-weight: bold; font-size: 24px">{rmse_xgb:.4f}</div>
+                <div class="metric-unit" style="text-align: center; color: #4CAF50;">Akar kuadrat dari MSE</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #FF9800; background-color: #FFF3E0; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #FF9800;">R² Score</div>
+                <div class="metric-value" style="color: #FF9800; text-align: center; font-weight: bold; font-size: 24px">{r2_xgb:.4f}</div>
+                <div class="metric-unit" style="text-align: center; color: #FF9800;">Kecocokan model</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown(f"""
+            <div class="metric-card" style="min-height: 120px;border-left: 4px solid #9C27B0; background-color: #F3E5F5; padding: 5px; border-radius: 8px;">
+                <div class="metric-title" style="text-align: center; color: #9C27B0;">MAPE</div>
+                <div class="metric-value" style="color: #9C27B0; text-align: center; font-weight: bold; font-size: 24px">{mape_xgb:.2f}%</div>
+                <div class="metric-unit" style="text-align: center; color: #9C27B0;">Persentase kesalahan</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Perbandingan Nilai Aktual dan Prediksi
+    st.markdown("<h3 style='text-align: center; padding-top: 50px'>🔮 Perbandingan Nilai Aktual dan Prediksi</h3>", unsafe_allow_html=True)
+
+    # Buat figure Plotly
+    actual_vs_pred_fig = go.Figure()
+
+    actual_vs_pred_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_test)),
+        y=y_test.values,
+        name='Aktual',
+        line=dict(color= '#008000', width=2),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
+    ))
+
+    actual_vs_pred_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_pred_xgb)),
+        y=y_pred_xgb,
+        name='Prediksi',
+        line=dict(color='#1c39f4', width=2, dash='solid'),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai: %{y:.2f}%'
+    ))
+
+    actual_vs_pred_fig.update_layout(
+        height=600,
+        xaxis_title='Index',
+        yaxis_title='Kelembapan Rata Rata (%)',
+        title={
+            'text': 'Perbandingan Prediksi dan Aktual Kelembapan Rata Rata (XGBoost)',
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': dict(size=20)
+        },
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        margin=dict(l=50, r=50, t=100, b=50),
+        plot_bgcolor='white',
+        hovermode='x unified',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    # Tampilkan plot di Streamlit
+    st.plotly_chart(actual_vs_pred_fig, use_container_width=True)
+
+#-------- Comparison Tab --------
+with tab_compare:
+    st.markdown("<h2 style='text-align: center;'>Perbandingan Semua Kinerja Model (Kelembapan Rata-Rata)</h2>", unsafe_allow_html=True)
+
+    metrics = ['MAE', 'MSE', 'RMSE', 'R²', 'MAPE']
+    rf_scores = [mae_rf, mse_rf, rmse_rf, r2_rf, mape_rf]
+    gb_scores = [mae_gb, mse_gb, rmse_gb, r2_gb, mape_gb]
+    xgb_scores = [mae_xgb, mse_xgb, rmse_xgb, r2_xgb, mape_xgb]
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=metrics,
+        y=rf_scores,
+        name='Random Forest',
+        marker=dict(color='#3498db'),
+        text=[f'{v:.3f}' for v in rf_scores],
+        textposition='auto',
+        hovertemplate='<b>Random Forest</b><br>%{x}: %{y:.3f}<extra></extra>'
+    ))
+
+    fig.add_trace(go.Bar(
+        x=metrics,
+        y=gb_scores,
+        name='Gradient Boosting',
+        marker=dict(color='#2ecc71'),
+        text=[f'{v:.3f}' for v in gb_scores],
+        textposition='auto',
+        hovertemplate='<b>Gradient Boosting</b><br>%{x}: %{y:.3f}<extra></extra>'
+    ))
+
+    fig.add_trace(go.Bar(
+        x=metrics,
+        y=xgb_scores,
+        name='XGBoost',
+        marker=dict(color='#e74c3c'),
+        text=[f'{v:.3f}' for v in xgb_scores],
+        textposition='auto',
+        hovertemplate='<b>XGBoost</b><br>%{x}: %{y:.3f}<extra></extra>'
+    ))
+
+    fig.update_layout(
+        title={
+            'text': 'Perbandingan Kinerja Model (Kelembapan Rata-Rata)',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="Metrik Evaluasi",
+        yaxis_title="Nilai",
+        legend_title="Model",
+        barmode='group',
+        bargap=0.25,
+        bargroupgap=0.1,
+        height=550,
+        font=dict(size=13),
+        
+        template='none',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='lightgray')
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("<h3 style='text-align: center; padding-top: 20px'>📊 Tabel Perbandingan Metrik</h3>", unsafe_allow_html=True)
+    
+    comparison_df = pd.DataFrame({
+        'Metrik': metrics,
+        'Random Forest': [f"{score:.4f}" if i != 4 else f"{score:.2f}%" for i, score in enumerate(rf_scores)],
+        'Gradient Boosting': [f"{score:.4f}" if i != 4 else f"{score:.2f}%" for i, score in enumerate(gb_scores)],
+        'XGBoost': [f"{score:.4f}" if i != 4 else f"{score:.2f}%" for i, score in enumerate(xgb_scores)]
+    })
+    
+    def highlight_best(row):
+        if row.name == 3:
+            best = row.iloc[1:].astype(float).idxmax()
+            styles = ['background-color: #5d5e61' if col == best else '' for col in row.index]
+            return styles
+        else:
+            values = [float(val.replace('%', '')) if '%' in str(val) else float(val) for val in row.iloc[1:]]
+            best_idx = values.index(min(values)) + 1 
+            styles = ['background-color: #5d5e61' if i == best_idx else '' for i in range(len(row))]
+            return styles
+    
+    styled_df = comparison_df.style.apply(highlight_best, axis=1)
+    
+    st.dataframe(styled_df, use_container_width=True)
+    
+    st.markdown("<h3 style='text-align: center; padding-top: 30px'>🔄 Perbandingan Prediksi Semua Model</h3>", unsafe_allow_html=True)
+    
+    all_models_fig = go.Figure()
+    
+    all_models_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_test)),
+        y=y_test.values,
+        name='Aktual',
+        line=dict(color='#008000', width=2.5),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Nilai Aktual: %{y:.2f}%'
+    ))
+    
+    all_models_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_pred_rf)),
+        y=y_pred_rf,
+        name='Random Forest',
+        line=dict(color='#4321ce', width=1.5, dash='solid'),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Prediksi RF: %{y:.2f}%'
+    ))
+    
+    all_models_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_pred_gb)),
+        y=y_pred_gb,
+        name='Gradient Boosting',
+        line=dict(color='#f7592f', width=1.5, dash='solid'),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Prediksi GB: %{y:.2f}%'
+    ))
+    
+    all_models_fig.add_trace(go.Scatter(
+        x=np.arange(len(y_pred_xgb)),
+        y=y_pred_xgb,
+        name='XGBoost',
+        line=dict(color='#1c39f4', width=1.5, dash='solid'),
+        mode='lines',
+        hovertemplate='Index: %{x}<br>Prediksi XGB: %{y:.2f}%'
+    ))
+    
+    all_models_fig.update_layout(
+        height=600,
+        xaxis_title='Index',
+        yaxis_title='Kelembapan Rata Rata (%)',
+        title={
+            'text': 'Perbandingan Prediksi Semua Model dengan Nilai Aktual',
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': dict(size=18)
+        },
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(230, 230, 230, 0.8)'
+        ),
+        margin=dict(l=50, r=50, t=100, b=50),
+        plot_bgcolor='white',
+        hovermode='x unified',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    
+    st.plotly_chart(all_models_fig, use_container_width=True)
+    
+    st.markdown("<h3 style='text-align: center; padding-top: 30px'>📉 Analisis Kesalahan Model</h3>", unsafe_allow_html=True)
+    
+    errors_rf = y_test.values - y_pred_rf
+    errors_gb = y_test.values - y_pred_gb
+    errors_xgb = y_test.values - y_pred_xgb
+    
+    error_fig = go.Figure()
+    
+    error_fig.add_trace(go.Histogram(
+        x=errors_rf,
+        name='Random Forest',
+        opacity=0.7,
+        marker=dict(color='#4321ce'),
+        nbinsx=30,
+        hovertemplate='Error: %{x:.2f}<br>Frekuensi: %{y}<extra>Random Forest</extra>'
+    ))
+    
+    error_fig.add_trace(go.Histogram(
+        x=errors_gb,
+        name='Gradient Boosting',
+        opacity=0.7,
+        marker=dict(color='#f7592f'),
+        nbinsx=30,
+        hovertemplate='Error: %{x:.2f}<br>Frekuensi: %{y}<extra>Gradient Boosting</extra>'
+    ))
+    
+    error_fig.add_trace(go.Histogram(
+        x=errors_xgb,
+        name='XGBoost',
+        opacity=0.7,
+        marker=dict(color='#1c39f4'),
+        nbinsx=30,
+        hovertemplate='Error: %{x:.2f}<br>Frekuensi: %{y}<extra>XGBoost</extra>'
+    ))
+    
+    error_fig.update_layout(
+        barmode='overlay',
+        title={
+            'text': 'Distribusi Kesalahan Prediksi Model',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="Kesalahan Prediksi (Aktual - Prediksi)",
+        yaxis_title="Frekuensi",
+        legend_title="Model",
+        height=500,
+        plot_bgcolor='white',
+        bargap=0.1,
+        bargroupgap=0.2
+    )
+    
+    st.plotly_chart(error_fig, use_container_width=True)
+    
+    error_stats = pd.DataFrame({
+        'Statistik': ['Min', 'Max', 'Mean', 'Median', 'Std Dev'],
+        'Random Forest': [
+            f"{errors_rf.min():.4f}",
+            f"{errors_rf.max():.4f}",
+            f"{errors_rf.mean():.4f}",
+            f"{np.median(errors_rf):.4f}",
+            f"{errors_rf.std():.4f}"
+        ],
+        'Gradient Boosting': [
+            f"{errors_gb.min():.4f}",
+            f"{errors_gb.max():.4f}",
+            f"{errors_gb.mean():.4f}",
+            f"{np.median(errors_gb):.4f}",
+            f"{errors_gb.std():.4f}"
+        ],
+        'XGBoost': [
+            f"{errors_xgb.min():.4f}",
+            f"{errors_xgb.max():.4f}",
+            f"{errors_xgb.mean():.4f}",
+            f"{np.median(errors_xgb):.4f}",
+            f"{errors_xgb.std():.4f}"
+        ]
+    })
+    
+    st.markdown("<h4 style='text-align: center; padding-top: 10px'>Statistik Kesalahan Prediksi</h4>", unsafe_allow_html=True)
+    st.dataframe(error_stats, use_container_width=True)
+    
+    st.markdown("<h3 style='text-align: center; padding-top: 30px'>🏆 Kesimpulan dan Rekomendasi</h3>", unsafe_allow_html=True)
+    
+    r2_scores = [r2_rf, r2_gb, r2_xgb]
+    rmse_scores = [rmse_rf, rmse_gb, rmse_xgb]
+    model_names = ['Random Forest', 'Gradient Boosting', 'XGBoost']
+    
+    best_r2_idx = r2_scores.index(max(r2_scores))
+    best_rmse_idx = rmse_scores.index(min(rmse_scores))
+    
+    if best_r2_idx == best_rmse_idx:
+        best_model = model_names[best_r2_idx]
+        best_r2 = r2_scores[best_r2_idx]
+        best_rmse = rmse_scores[best_rmse_idx]
+        
+        st.markdown(f"""
+        <div style="background-color: #e8f4f8; padding: 20px; border-radius: 10px; border-left: 5px solid #2196F3; text-align: center">
+            <h4 style="color: #2196F3; margin-top: 0;">Model Terbaik: {best_model}</h4>
+            <p style="color: #2196F3; margin-top: 0;">Berdasarkan evaluasi metrik, model <b style="color: #2196F3; font-weight: bold">{best_model}</b> menunjukkan performa terbaik dengan nilai:</p>
+            <ul style="color: #2196F3; margin-top: 0;">
+                <li >R² Score: <b>{best_r2:.4f}</b> (semakin tinggi semakin baik)</li>
+                <li>RMSE: <b>{best_rmse:.4f}</b> (semakin rendah semakin baik)</li>
+            </ul>
+            <p style="color: #2196F3; margin-top: 0;">Model ini memiliki keseimbangan terbaik dalam akurasi prediksi kelembapan dan konsistensi performa.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    else:
+        st.markdown(f"""
+        <div style="background-color: #e8f4f8; padding: 20px; border-radius: 10px; border-left: 5px solid #2196F3;">
+            <h4 style="color: #2196F3; margin-top: 0;">Rekomendasi Model</h4>
+            <p>Berdasarkan evaluasi metrik yang berbeda:</p>
+            <ul>
+                <li><b>{model_names[best_r2_idx]}</b> memberikan R² Score terbaik: <b>{r2_scores[best_r2_idx]:.4f}</b></li>
+                <li><b>{model_names[best_rmse_idx]}</b> memberikan RMSE terendah: <b>{rmse_scores[best_rmse_idx]:.4f}</b></li>
+            </ul>
+            <p>Pilihan model tergantung pada prioritas:</p>
+            <ul>
+                <li>Jika prioritas adalah kecocokan model secara keseluruhan, pilih <b>{model_names[best_r2_idx]}</b></li>
+                <li>Jika prioritas adalah akurasi prediksi dengan kesalahan minimum, pilih <b>{model_names[best_rmse_idx]}</b></li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
 
-st.plotly_chart(fig, use_container_width=True)
-
-with st.expander("📘 Penjelasan Metrik Evaluasi"):
-    st.markdown("""
-    - **MAE (Mean Absolute Error)**: Rata-rata selisih absolut antara prediksi dan nilai aktual.
-    - **MSE (Mean Squared Error)**: Rata-rata dari kuadrat selisih antara prediksi dan nilai aktual.
-    - **RMSE (Root Mean Squared Error)**: Akar kuadrat dari MSE, lebih sensitif terhadap outlier.
-    - **R² (R-squared)**: Seberapa baik model menjelaskan variansi data (semakin mendekati 1, semakin baik).
-    - **MAPE (Mean Absolute Percentage Error)**: Persentase rata-rata kesalahan prediksi terhadap nilai aktual.
-    """)
 
 
+# >🤖🤖Prediksi Kelembapan Udara🤖🤖
+st.markdown("---")
+st.markdown("<h1 style='text-align: center; padding-buttom: 80px;'>💧Prediksi Kelembapan Udara💧</h1>", unsafe_allow_html=True)
 
+# Fungsi load model
+@st.cache_resource
+def load_model():
+    try:
+        return joblib.load('./Dataset/model_kelembapan_rf.joblib')
+    except FileNotFoundError:
+        st.error("Model file tidak ditemukan. Pastikan file 'model_kelembapan_rf.joblib' ada di direktori yang sama.")
+        return None
+
+# Fungsi untuk memprediksi kelembaban di masa mendatang
+def prediksi_kelembapan_masa_depan(data_terakhir, hari_untuk_diprediksi, model):
+    """
+    Memprediksi kelembapan rata-rata untuk beberapa hari ke depan.
+
+    Args:
+        data_terakhir: DataFrame dengan data terbaru yang digunakan sebagai dasar prediksi
+        hari_untuk_diprediksi: Jumlah hari yang akan diprediksi
+        model: Model Random Forest yang telah dilatih
+    Returns:
+        DataFrame berisi tanggal dan prediksi kelembapan
+    """
+    # Inisialisasi dataframe untuk menyimpan hasil prediksi
+    hasil_prediksi = pd.DataFrame(columns=['TANGGAL', 'Kelembapan_Rata-Rata'])
+    
+    # Mendapatkan tanggal terakhir dari data
+    tanggal_terakhir = data_terakhir['TANGGAL'].iloc[0]
+    
+    # Menyiapkan data untuk prediksi
+    data_baru = data_terakhir.copy()
+    
+    # Fitur-fitur yang digunakan untuk prediksi
+    fitur_dasar = [
+        'Suhu_Rata-Rata',
+        'Curah_Hujan',
+        'Sinar_Matahari',
+    ]
+    fitur_lag = [
+        'Suhu_Rata-Rata_1HariSebelum', 'Kelembapan_1HariSebelum',
+        'Hujan_1HariSebelum', 'Matahari_1HariSebelum'
+    ]
+    fitur_rolling = [
+        'Suhu_Rata-Rata_Rolling3Hari', 'Kelembapan_Rolling3Hari',
+        'Hujan_Rolling3Hari', 'Matahari_Rolling3Hari'
+    ]
+    fitur_waktu = ['Hari', 'Bulan', 'Tahun']
+    
+    # Semua fitur yang digunakan
+    fitur = fitur_dasar + fitur_lag + fitur_rolling + fitur_waktu
+    
+    # Iterasi untuk memprediksi hari demi hari
+    for i in range(hari_untuk_diprediksi):
+        # Tanggal untuk prediksi
+        tanggal_prediksi = tanggal_terakhir + timedelta(days=i+1)
+        
+        # Update fitur waktu untuk tanggal prediksi
+        data_baru['TANGGAL'] = tanggal_prediksi
+        data_baru['Hari'] = tanggal_prediksi.dayofweek
+        data_baru['Bulan'] = tanggal_prediksi.month
+        data_baru['Tahun'] = tanggal_prediksi.year
+        
+        # Prediksi kelembapan untuk hari ini
+        X_predict = data_baru[fitur]
+        kelembapan_prediction = model.predict(X_predict)[0]
+        
+        # Menambahkan hasil prediksi ke DataFrame hasil_prediksi
+        hasil_prediksi.loc[i] = [tanggal_prediksi, kelembapan_prediction]
+        
+        # Update data untuk prediksi hari berikutnya
+        data_baru['Kelembapan_1HariSebelum'] = kelembapan_prediction
+        data_baru['Suhu_Rata-Rata_1HariSebelum'] = data_baru['Suhu_Rata-Rata']
+        data_baru['Hujan_1HariSebelum'] = data_baru['Curah_Hujan']
+        data_baru['Matahari_1HariSebelum'] = data_baru['Sinar_Matahari']
+        
+        # Update rolling average setelah 3 hari
+        if i >= 2:
+            prev_3_kelembapan = hasil_prediksi.loc[i-2:i, 'Kelembapan_Rata-Rata'].values
+            data_baru['Kelembapan_Rolling3Hari'] = np.mean(prev_3_kelembapan)
+            
+            # Update rolling untuk fitur lain jika ada data historis
+            # Untuk demonstrasi, kita biarkan nilai Rolling3Hari untuk fitur lain tetap sama
+    
+    return hasil_prediksi
+
+# Load model
+model_rf = load_model()
+
+# Header for input parameters
+st.markdown('<h2 style="text-align: center; padding: 50px;">🔢 Input Data Kondisi Terkini 🔢</h2>', unsafe_allow_html=True)
+
+# Input parameters form
+with st.form("input_form"):
+    st.subheader("Data Kondisi Terkini")
+    
+    # Tanggal
+    tanggal = st.date_input(
+        "Tanggal Data Terkini",
+        datetime.now().date()
+    )
+    
+    # Create two columns for better layout
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Fitur dasar untuk hari ini
+        suhu_rata_rata = st.number_input("Suhu Rata-Rata (°C)", value=28.5, min_value=0.0, max_value=50.0, step=0.1)
+        curah_hujan = st.number_input("Curah Hujan (mm)", value=0.5, min_value=0.0, max_value=500.0, step=0.1)
+        sinar_matahari = st.number_input("Sinar Matahari (jam)", value=7.5, min_value=0.0, max_value=12.0, step=0.1)
+    
+    with col2:
+        # Fitur lag (1 hari sebelumnya)
+        suhu_sebelum = st.number_input("Suhu 1 Hari Sebelum (°C)", value=28.2, min_value=0.0, max_value=50.0, step=0.1)
+        kelembapan_sebelum = st.number_input("Kelembapan 1 Hari Sebelum (%)", value=83.0, min_value=0.0, max_value=100.0, step=0.1)
+        hujan_sebelum = st.number_input("Curah Hujan 1 Hari Sebelum (mm)", value=1.0, min_value=0.0, max_value=500.0, step=0.1)
+        matahari_sebelum = st.number_input("Sinar Matahari 1 Hari Sebelum (jam)", value=6.5, min_value=0.0, max_value=12.0, step=0.1)
+    
+    # Fitur rolling (rata-rata 3 hari)
+    st.subheader("Data Rata-rata 3 Hari Terakhir")
+    
+    col3, col4 = st.columns(2)
+    
+    with col3:
+        suhu_rolling = st.number_input("Suhu Rolling 3 Hari (°C)", value=28.3, min_value=0.0, max_value=50.0, step=0.1)
+        kelembapan_rolling = st.number_input("Kelembapan Rolling 3 Hari (%)", value=82.5, min_value=0.0, max_value=100.0, step=0.1)
+    
+    with col4:
+        hujan_rolling = st.number_input("Curah Hujan Rolling 3 Hari (mm)", value=0.8, min_value=0.0, max_value=500.0, step=0.1)
+        matahari_rolling = st.number_input("Sinar Matahari Rolling 3 Hari (jam)", value=7.0, min_value=0.0, max_value=12.0, step=0.1)
+    
+    # Jumlah hari untuk diprediksi
+    st.subheader("Parameter Prediksi")
+    hari_prediksi = st.slider("Jumlah Hari untuk Diprediksi", min_value=7, max_value=90, value=30, step=1)
+    
+    # Submit button
+    submitted = st.form_submit_button("Jalankan Prediksi")
+
+# Main content
+if model_rf is not None:
+    if submitted:
+        with st.spinner("Memproses prediksi..."):
+            # Membuat DataFrame dari input
+            data_terakhir = pd.DataFrame({
+                'TANGGAL': [pd.Timestamp(tanggal)],
+                'Suhu_Rata-Rata': [suhu_rata_rata],
+                'Curah_Hujan': [curah_hujan],
+                'Sinar_Matahari': [sinar_matahari],
+                'Hari': [pd.Timestamp(tanggal).dayofweek],
+                'Bulan': [pd.Timestamp(tanggal).month],
+                'Tahun': [pd.Timestamp(tanggal).year],
+                'Suhu_Rata-Rata_1HariSebelum': [suhu_sebelum],
+                'Kelembapan_1HariSebelum': [kelembapan_sebelum],
+                'Hujan_1HariSebelum': [hujan_sebelum],
+                'Matahari_1HariSebelum': [matahari_sebelum],
+                'Suhu_Rata-Rata_Rolling3Hari': [suhu_rolling],
+                'Kelembapan_Rolling3Hari': [kelembapan_rolling],
+                'Hujan_Rolling3Hari': [hujan_rolling],
+                'Matahari_Rolling3Hari': [matahari_rolling]
+            })
+            
+            # Run prediction
+            prediksi_masa_depan = prediksi_kelembapan_masa_depan(data_terakhir, hari_prediksi, model_rf)
+            
+            # Store the prediction in session state for reuse
+            st.session_state.prediksi = prediksi_masa_depan
+            st.session_state.has_prediction = True
+    
+    # Menampilkan hasil jika prediksi ada (baik dari kiriman saat ini atau sebelumnya)
+    if 'has_prediction' in st.session_state and st.session_state.has_prediction:
+        prediksi_masa_depan = st.session_state.prediksi
+        
+        # Buat tab untuk tampilan yang berbeda
+        tab1, tab2, tab3 = st.tabs(["📈 Grafik Prediksi", "📊 Statistik", "📋 Data Lengkap"])
+        
+        with tab1:
+            st.subheader("Prediksi Kelembapan Udara untuk {} Hari ke Depan".format(len(prediksi_masa_depan)))
+            
+            # Create Plotly figure
+            fig = go.Figure()
+            
+            fig.add_trace(
+                go.Scatter(
+                    x=prediksi_masa_depan['TANGGAL'],
+                    y=prediksi_masa_depan['Kelembapan_Rata-Rata'],
+                    mode='lines+markers',
+                    name='Kelembapan (%)',
+                    line=dict(color='royalblue', width=3),
+                    marker=dict(size=6, color='darkblue')
+                )
+            )
+            
+            fig.update_layout(
+                title={
+                    'text': f"Prediksi Kelembapan Udara ({prediksi_masa_depan['TANGGAL'].min().strftime('%d %b %Y')} - {prediksi_masa_depan['TANGGAL'].max().strftime('%d %b %Y')})",
+                    'y':0.95,
+                    'x':0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'
+                },
+                xaxis_title="Tanggal",
+                yaxis_title="Kelembapan Rata-Rata (%)",
+                hovermode="x unified",
+                height=500,
+                xaxis=dict(
+                    tickformat="%d %b %Y"
+                ),
+                yaxis=dict(
+                    gridcolor='rgba(230, 230, 230, 0.8)'
+                ),
+                plot_bgcolor='rgb(255, 255, 255)',
+                margin=dict(l=40, r=40, t=80, b=40),
+            )
+            
+            fig.update_layout(
+                xaxis=dict(
+                    rangeselector=dict(
+                        buttons=list([
+                            dict(count=7, label="7D", step="day", stepmode="backward"),
+                            dict(count=14, label="14D", step="day", stepmode="backward"),
+                            dict(count=1, label="1M", step="month", stepmode="backward"),
+                            dict(step="all")
+                        ])
+                    ),
+                    rangeslider=dict(visible=True),
+                    type="date"
+                )
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with tab2:
+            st.subheader("Statistik Prediksi Kelembapan")
+            
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric(
+                    "Rata-rata", 
+                    f"{prediksi_masa_depan['Kelembapan_Rata-Rata'].mean():.2f}%"
+                )
+            
+            with col2:
+                st.metric(
+                    "Minimum", 
+                    f"{prediksi_masa_depan['Kelembapan_Rata-Rata'].min():.2f}%"
+                )
+            
+            with col3:
+                st.metric(
+                    "Maksimum", 
+                    f"{prediksi_masa_depan['Kelembapan_Rata-Rata'].max():.2f}%"
+                )
+            
+            with col4:
+                st.metric(
+                    "Standar Deviasi", 
+                    f"{prediksi_masa_depan['Kelembapan_Rata-Rata'].std():.2f}%"
+                )
+            
+            st.subheader("Distribusi Kelembapan")
+            hist_fig = px.histogram(
+                prediksi_masa_depan, 
+                x='Kelembapan_Rata-Rata',
+                nbins=20,
+                labels={'Kelembapan_Rata-Rata': 'Kelembapan (%)'},
+                title='Distribusi Prediksi Kelembapan',
+                color_discrete_sequence=['royalblue']
+            )
+            hist_fig.update_layout(
+                xaxis_title="Kelembapan (%)",
+                yaxis_title="Frekuensi",
+                bargap=0.1,
+                height=400,
+                plot_bgcolor='rgb(255, 255, 255)'
+            )
+            st.plotly_chart(hist_fig, use_container_width=True)
+
+            # Menampilkan rangkuman berdasarkan bulan
+            if len(prediksi_masa_depan) > 14:  # Hanya jika ada cukup data
+                st.subheader("Rangkuman Berdasarkan Bulan")
+                
+                # Menambahkan nama bulan ke dataframe
+                prediksi_masa_depan['Bulan_Nama'] = prediksi_masa_depan['TANGGAL'].dt.strftime('%B %Y')
+                
+                # Menghitung rata-rata per bulan
+                monthly_avg = prediksi_masa_depan.groupby('Bulan_Nama')['Kelembapan_Rata-Rata'].agg(['mean', 'min', 'max']).reset_index()
+                monthly_avg.columns = ['Bulan', 'Rata-rata', 'Minimum', 'Maksimum']
+                
+                # Menampilkan sebagai bar chart
+                monthly_fig = px.bar(
+                    monthly_avg,
+                    x='Bulan',
+                    y='Rata-rata',
+                    error_y=monthly_avg['Maksimum'] - monthly_avg['Rata-rata'],
+                    error_y_minus=monthly_avg['Rata-rata'] - monthly_avg['Minimum'],
+                    title='Rata-rata Kelembapan Bulanan',
+                    color_discrete_sequence=['royalblue']
+                )
+                monthly_fig.update_layout(
+                    xaxis_title="Bulan",
+                    yaxis_title="Kelembapan Rata-rata (%)",
+                    height=400,
+                    plot_bgcolor='rgb(255, 255, 255)'
+                )
+                st.plotly_chart(monthly_fig, use_container_width=True)
+        
+        with tab3:
+            st.subheader("Data Lengkap Prediksi Kelembapan")
+            
+            # Format tanggal untuk tampilan
+            prediksi_display = prediksi_masa_depan.copy()
+            prediksi_display['TANGGAL'] = prediksi_display['TANGGAL'].dt.strftime('%Y-%m-%d')
+            prediksi_display['Kelembapan_Rata-Rata'] = prediksi_display['Kelembapan_Rata-Rata'].round(2)
+            prediksi_display.rename(columns={'TANGGAL': 'Tanggal', 'Kelembapan_Rata-Rata': 'Kelembapan Rata-Rata (%)'}, inplace=True)
+            
+            st.dataframe(prediksi_display, use_container_width=True)
+            
+            csv = prediksi_display.to_csv(index=False)
+            tanggal_awal = prediksi_masa_depan['TANGGAL'].min().strftime('%Y%m%d')
+            tanggal_akhir = prediksi_masa_depan['TANGGAL'].max().strftime('%Y%m%d')
+            
+            st.download_button(
+                label="📥 Download Data Prediksi (CSV)",
+                data=csv,
+                file_name=f"prediksi_kelembapan_{tanggal_awal}_s.d_{tanggal_akhir}.csv",
+                mime="text/csv",
+            )
+    else:
+        st.info("☝️ Masukkan parameter input di panel sebelah atas, lalu klik 'Jalankan Prediksi' untuk menghasilkan prediksi kelembapan udara.")
+        
+        st.subheader("Contoh Visualisasi")
+        
+        tanggal_contoh = pd.date_range(start=datetime.now().date(), periods=30)
+        kelembapan_contoh = np.random.normal(loc=82, scale=2, size=30).round(2)
+        df_contoh = pd.DataFrame({
+            'TANGGAL': tanggal_contoh,
+            'Kelembapan_Rata-Rata': kelembapan_contoh
+        })
+        
+        fig_contoh = go.Figure()
+        fig_contoh.add_trace(
+            go.Scatter(
+                x=df_contoh['TANGGAL'],
+                y=df_contoh['Kelembapan_Rata-Rata'],
+                mode='lines+markers',
+                name='Kelembapan (%)',
+                line=dict(color='lightgrey', width=2, dash='dash'),
+                marker=dict(size=5, color='darkgrey')
+            )
+        )
+        fig_contoh.update_layout(
+            title="Contoh Visualisasi Prediksi Kelembapan (Data Simulasi)",
+            xaxis_title="Tanggal",
+            yaxis_title="Kelembapan Rata-Rata (%)",
+            height=400,
+            plot_bgcolor='rgb(255, 255, 255)',
+        )
+        
+        st.plotly_chart(fig_contoh, use_container_width=True)
+        
+        st.caption("Catatan: Visualisasi di atas menggunakan data simulasi. Masukkan parameter input untuk melihat prediksi yang sebenarnya.")
+
+# Footer
+st.markdown("---")
+st.markdown("<h3 style='text-align: center;'>📚 Informasi Model</h3>", unsafe_allow_html=True)
+st.markdown("""
+Model prediksi kelembapan ini menggunakan algoritma Random Forest yang telah dilatih dengan data historis. Fitur input yang digunakan meliputi:
+- Suhu rata-rata harian
+- Curah hujan
+- Lama penyinaran matahari
+- Data historis 1 hari sebelumnya
+- Rata-rata data 3 hari sebelumnya
+- Informasi waktu (hari, bulan, tahun)
+""")
 
 
 
