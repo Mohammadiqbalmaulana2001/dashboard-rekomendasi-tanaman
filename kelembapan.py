@@ -600,7 +600,7 @@ with col3:
 # Load model .joblib
 model_rf = joblib.load("./Dataset/model_kelembapan_rf.joblib")
 model_gb = joblib.load("./Dataset/model_kelembapan_gb.joblib")
-model_xgb = joblib.load("./Dataset/model_kelembapan_xgb.joblib")
+y_pred_xgb = joblib.load("./Dataset/model_kelembapan_xgb.joblib")
 
 st.markdown("---")
 st.markdown("<h1 style='text-align: center; padding-top: 20px; padding-bottom: 40px;'>Evaluasi Model Prediksi Kelembapan</h1>", unsafe_allow_html=True)
@@ -897,8 +897,8 @@ with tab_gb:
 with tab_xgb:
     st.markdown("<h2 style='text-align: center;'>Model XGBoost</h2>", unsafe_allow_html=True)
     
-    model_xgb.fit(X_train, y_train)
-    y_pred_xgb = model_xgb.predict(X_test)
+    # model_xgb.fit(X_train, y_train)
+    # y_pred_xgb = model_xgb.predict(X_test)
     mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
     mse_xgb = mean_squared_error(y_test, y_pred_xgb)
     rmse_xgb = np.sqrt(mse_xgb)
