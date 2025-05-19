@@ -1115,12 +1115,12 @@ with tab_compare:
     def highlight_best(row):
         if row.name == 3:
             best = row.iloc[1:].astype(float).idxmax()
-            styles = ['background-color: #5d5e61' if col == best else '' for col in row.index]
+            styles = ['' if col == best else '' for col in row.index]
             return styles
         else:
             values = [float(val.replace('%', '')) if '%' in str(val) else float(val) for val in row.iloc[1:]]
             best_idx = values.index(min(values)) + 1 
-            styles = ['background-color: #5d5e61' if i == best_idx else '' for i in range(len(row))]
+            styles = ['' if i == best_idx else '' for i in range(len(row))]
             return styles
     
     styled_df = comparison_df.style.apply(highlight_best, axis=1)
