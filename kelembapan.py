@@ -1469,7 +1469,7 @@ with st.expander("🔽 Input Data Kondisi Terkini 🔽", expanded=False):
         
         # Jumlah hari untuk diprediksi
         st.subheader("Parameter Prediksi")
-        hari_prediksi = st.slider("Jumlah Hari untuk Diprediksi", min_value=7, max_value=90, value=30, step=1)
+        hari_prediksi = st.slider("Jumlah Hari untuk Diprediksi", min_value=3, max_value=100, value=30, step=1)
         
         # Submit button
         submitted = st.form_submit_button("Jalankan Prediksi")
