@@ -5,6 +5,7 @@ import joblib
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import plotly.express as px
+import os
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 st.markdown("""
@@ -481,8 +482,8 @@ st.markdown(
 )
 
 # Muat data dari file
-X_train, X_test, y_train, y_test = joblib.load("./Dataset/split_data_kelembapan.pkl")
-
+file_path = os.path.join(os.path.dirname(__file__), 'Dataset', 'split_data_kelembapan.pkl')
+X_train, X_test, y_train, y_test = joblib.load(file_path)
 # Total sampel untuk perhitungan persentase
 total_samples = X_train.shape[0] + X_test.shape[0]
 training_ratio = X_train.shape[0] / total_samples * 100
