@@ -1330,7 +1330,6 @@ with tab_compare:
 
 
 
-
 # >🤖🤖Prediksi Kelembapan Udara🤖🤖
 st.markdown("---")
 st.markdown("<h1 style='text-align: center; padding-buttom: 80px;'>💧Prediksi Kelembapan Udara💧</h1>", unsafe_allow_html=True)
@@ -1421,54 +1420,59 @@ def prediksi_kelembapan_masa_depan(data_terakhir, hari_untuk_diprediksi, model):
 # Load model
 model_rf = load_model()
 
-# Header for input parameters
-st.markdown('<h2 style="text-align: center; padding: 50px;">🔢 Input Data Kondisi Terkini 🔢</h2>', unsafe_allow_html=True)
+# Header untuk input parameters menggunakan expander
+st.markdown('<h2 style="text-align: center; padding: 20px;">🔢 Parameter Prediksi 🔢</h2>', unsafe_allow_html=True)
 
-# Input parameters form
-with st.form("input_form"):
-    st.subheader("Data Kondisi Terkini")
-    
-    # Tanggal
-    tanggal = st.date_input(
-        "Tanggal Data Terkini",
-        datetime.now().date()
-    )
-    
-    # Create two columns for better layout
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Fitur dasar untuk hari ini
-        suhu_rata_rata = st.number_input("Suhu Rata-Rata (°C)", value=28.5, min_value=0.0, max_value=50.0, step=0.1)
-        curah_hujan = st.number_input("Curah Hujan (mm)", value=0.5, min_value=0.0, max_value=500.0, step=0.1)
-        sinar_matahari = st.number_input("Sinar Matahari (jam)", value=7.5, min_value=0.0, max_value=12.0, step=0.1)
-    
-    with col2:
-        # Fitur lag (1 hari sebelumnya)
-        suhu_sebelum = st.number_input("Suhu 1 Hari Sebelum (°C)", value=28.2, min_value=0.0, max_value=50.0, step=0.1)
-        kelembapan_sebelum = st.number_input("Kelembapan 1 Hari Sebelum (%)", value=83.0, min_value=0.0, max_value=100.0, step=0.1)
-        hujan_sebelum = st.number_input("Curah Hujan 1 Hari Sebelum (mm)", value=1.0, min_value=0.0, max_value=500.0, step=0.1)
-        matahari_sebelum = st.number_input("Sinar Matahari 1 Hari Sebelum (jam)", value=6.5, min_value=0.0, max_value=12.0, step=0.1)
-    
-    # Fitur rolling (rata-rata 3 hari)
-    st.subheader("Data Rata-rata 3 Hari Terakhir")
-    
-    col3, col4 = st.columns(2)
-    
-    with col3:
-        suhu_rolling = st.number_input("Suhu Rolling 3 Hari (°C)", value=28.3, min_value=0.0, max_value=50.0, step=0.1)
-        kelembapan_rolling = st.number_input("Kelembapan Rolling 3 Hari (%)", value=82.5, min_value=0.0, max_value=100.0, step=0.1)
-    
-    with col4:
-        hujan_rolling = st.number_input("Curah Hujan Rolling 3 Hari (mm)", value=0.8, min_value=0.0, max_value=500.0, step=0.1)
-        matahari_rolling = st.number_input("Sinar Matahari Rolling 3 Hari (jam)", value=7.0, min_value=0.0, max_value=12.0, step=0.1)
-    
-    # Jumlah hari untuk diprediksi
-    st.subheader("Parameter Prediksi")
-    hari_prediksi = st.slider("Jumlah Hari untuk Diprediksi", min_value=7, max_value=90, value=30, step=1)
-    
-    # Submit button
-    submitted = st.form_submit_button("Jalankan Prediksi")
+# Menggunakan expander untuk form input
+with st.expander("🔽 Input Data Kondisi Terkini 🔽", expanded=False):
+    with st.form("input_form"):
+        st.subheader("Data Kondisi Terkini")
+        
+        # Tanggal
+        tanggal = st.date_input(
+            "Tanggal Data Terkini",
+            datetime.now().date()
+        )
+        
+        # Create two columns for better layout
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Fitur dasar untuk hari ini
+            suhu_rata_rata = st.number_input("Suhu Rata-Rata (°C)", value=28.5, min_value=0.0, max_value=50.0, step=0.1)
+            curah_hujan = st.number_input("Curah Hujan (mm)", value=0.5, min_value=0.0, max_value=500.0, step=0.1)
+            sinar_matahari = st.number_input("Sinar Matahari (jam)", value=7.5, min_value=0.0, max_value=12.0, step=0.1)
+        
+        with col2:
+            # Fitur lag (1 hari sebelumnya)
+            suhu_sebelum = st.number_input("Suhu 1 Hari Sebelum (°C)", value=28.2, min_value=0.0, max_value=50.0, step=0.1)
+            kelembapan_sebelum = st.number_input("Kelembapan 1 Hari Sebelum (%)", value=83.0, min_value=0.0, max_value=100.0, step=0.1)
+            hujan_sebelum = st.number_input("Curah Hujan 1 Hari Sebelum (mm)", value=1.0, min_value=0.0, max_value=500.0, step=0.1)
+            matahari_sebelum = st.number_input("Sinar Matahari 1 Hari Sebelum (jam)", value=6.5, min_value=0.0, max_value=12.0, step=0.1)
+        
+        st.markdown("---")
+        
+        # Fitur rolling (rata-rata 3 hari)
+        st.subheader("Data Rata-rata 3 Hari Terakhir")
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            suhu_rolling = st.number_input("Suhu Rolling 3 Hari (°C)", value=28.3, min_value=0.0, max_value=50.0, step=0.1)
+            kelembapan_rolling = st.number_input("Kelembapan Rolling 3 Hari (%)", value=82.5, min_value=0.0, max_value=100.0, step=0.1)
+        
+        with col4:
+            hujan_rolling = st.number_input("Curah Hujan Rolling 3 Hari (mm)", value=0.8, min_value=0.0, max_value=500.0, step=0.1)
+            matahari_rolling = st.number_input("Sinar Matahari Rolling 3 Hari (jam)", value=7.0, min_value=0.0, max_value=12.0, step=0.1)
+        
+        st.markdown("---")
+        
+        # Jumlah hari untuk diprediksi
+        st.subheader("Parameter Prediksi")
+        hari_prediksi = st.slider("Jumlah Hari untuk Diprediksi", min_value=7, max_value=90, value=30, step=1)
+        
+        # Submit button
+        submitted = st.form_submit_button("Jalankan Prediksi")
 
 # Main content
 if model_rf is not None:
