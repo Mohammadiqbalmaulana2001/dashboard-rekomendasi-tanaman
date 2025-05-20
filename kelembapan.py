@@ -33,12 +33,12 @@ st.markdown("""
 
 #⭕ """"ini tampilan informasi dataset"""" ⭕
 
-st.markdown("<h1 style='text-align: center;'>💧Peramalan Kelembapan Rata-Rata 💧</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>💧Peramalan Kelembapan Rata-Rata💧</h1>", unsafe_allow_html=True)
 # Deskripsi
 st.markdown("""
 <div style='text-align: justify; font-size: 16px; text-indent: 40px; padding-bottom: 50px;'>
-    Dalam proyek ini, kita akan menganalisis data time series cuaca untuk memprediksi kelembapan rata-rata (<code>RH_AVG</code>) berdasarkan berbagai parameter cuaca. 
-    Tujuan utama adalah membangun model machine learning seperti <b>Random Forest</b> yang dapat memperkirakan kelembapan dengan akurat berdasarkan fitur-fitur seperti suhu, curah hujan, dan sinar matahari.
+    Di halaman ini, kita akan menganalisis data time series cuaca untuk memprediksi kelembapan rata-rata (<code>RH_AVG</code>) berdasarkan berbagai parameter cuaca. 
+    Tujuan utama adalah mengembangkan model machine learning seperti <b>Random Forest</b> yang dapat memperkirakan kelembapan dengan berdasarkan fitur-fitur seperti suhu, curah hujan, dan sinar matahari.
 </div>
 """, unsafe_allow_html=True)
 # Fungsi untuk memuat data

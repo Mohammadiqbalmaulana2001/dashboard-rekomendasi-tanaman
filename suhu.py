@@ -4,10 +4,8 @@ import os
 import numpy as np
 import joblib
 from datetime import datetime, timedelta
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 st.markdown("""
@@ -41,8 +39,8 @@ st.markdown("<h1 style='text-align: center;'>🌡️ Peramalan Suhu 🌡️</h1>
 # Deskripsi
 st.markdown("""
 <div style='text-align: justify; font-size: 16px; text-indent: 40px; padding-bottom: 50px;'>
-    Dalam proyek ini, kita akan menganalisis data time series cuaca untuk memprediksi Suhu rata-rata (<code>Tavg</code>) berdasarkan berbagai parameter cuaca. 
-    Tujuan utama adalah membangun model machine learning seperti <b>Random Forest</b> yang dapat memperkirakan kelembapan dengan akurat berdasarkan fitur-fitur seperti suhu, curah hujan, dan sinar matahari.
+    Di halaman ini, kita akan menganalisis data time series cuaca untuk memprediksi Suhu rata-rata (<code>Tavg</code>) berdasarkan berbagai parameter cuaca. 
+    Tujuan utama adalah mengembangkan model machine learning seperti <b>Random Forest</b> yang dapat memperkirakan suhu dengan berdasarkan fitur-fitur seperti kelembaban, curah hujan, dan sinar matahari.
 </div>
 """, unsafe_allow_html=True)
 # Fungsi untuk memuat data
