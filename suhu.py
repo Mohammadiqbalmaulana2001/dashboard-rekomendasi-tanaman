@@ -1321,3 +1321,396 @@ with tab_compare:
             </ul>
         </div>
         """, unsafe_allow_html=True)
+
+
+
+
+
+
+# >🤖🤖Prediksi Suhu Udara🤖🤖
+st.markdown("---")
+st.markdown("<h1 style='text-align: center; padding-buttom: 80px;'>🌡️Prediksi Suhu Udara🌡️</h1>", unsafe_allow_html=True)
+
+# Fungsi load model
+@st.cache_resource
+def load_model():
+    try:
+        return joblib.load('./Dataset/model_suhu_rf.joblib')
+    except FileNotFoundError:
+        st.error("Model file tidak ditemukan. Pastikan file 'model_suhu_rf.joblib' ada di direktori yang sama.")
+        return None
+
+# Fungsi untuk memprediksi suhu di masa mendatang
+def prediksi_suhu_masa_depan(data_terakhir, hari_untuk_diprediksi, model):
+    """
+    Memprediksi suhu rata-rata untuk beberapa hari ke depan.
+
+    Args:
+        data_terakhir: DataFrame dengan data terbaru yang digunakan sebagai dasar prediksi
+        hari_untuk_diprediksi: Jumlah hari yang akan diprediksi
+        model: Model Random Forest yang telah dilatih
+    Returns:
+        DataFrame berisi tanggal dan prediksi suhu rata-rata
+    """
+    # Inisialisasi dataframe untuk menyimpan hasil prediksi
+    hasil_prediksi = pd.DataFrame(columns=['TANGGAL', 'Suhu_Rata-Rata'])
+    
+    # Mendapatkan tanggal terakhir dari data
+    tanggal_terakhir = data_terakhir['TANGGAL'].iloc[0]
+    
+    # Menyiapkan data untuk prediksi
+    data_baru = data_terakhir.copy()
+    
+    # Fitur-fitur yang digunakan untuk prediksi
+    fitur_dasar = [
+        'Kelembapan_Rata-Rata',
+        'Curah_Hujan',
+        'Sinar_Matahari',
+    ]
+    fitur_lag = [
+        'Suhu_Rata-Rata_1HariSebelum', 'Kelembapan_1HariSebelum',
+        'Hujan_1HariSebelum', 'Matahari_1HariSebelum'
+    ]
+    fitur_rolling = [
+        'Suhu_Rata-Rata_Rolling3Hari', 'Kelembapan_Rolling3Hari',
+        'Hujan_Rolling3Hari', 'Matahari_Rolling3Hari'
+    ]
+    fitur_waktu = ['Hari', 'Bulan', 'Tahun']
+    
+    # Semua fitur yang digunakan
+    fitur = fitur_dasar + fitur_lag + fitur_rolling + fitur_waktu
+    
+    # Iterasi untuk memprediksi hari demi hari
+    for i in range(hari_untuk_diprediksi):
+        # Tanggal untuk prediksi
+        tanggal_prediksi = tanggal_terakhir + timedelta(days=i+1)
+        
+        # Update fitur waktu untuk tanggal prediksi
+        data_baru['TANGGAL'] = tanggal_prediksi
+        data_baru['Hari'] = tanggal_prediksi.dayofweek
+        data_baru['Bulan'] = tanggal_prediksi.month
+        data_baru['Tahun'] = tanggal_prediksi.year
+        
+        # Prediksi suhu untuk hari ini
+        X_predict = data_baru[fitur]
+        suhu_prediction = model.predict(X_predict)[0]
+        
+        # Menambahkan hasil prediksi ke DataFrame hasil_prediksi
+        hasil_prediksi.loc[i] = [tanggal_prediksi, suhu_prediction]
+        
+        # Update data untuk prediksi hari berikutnya
+        data_baru['Suhu_Rata-Rata_1HariSebelum'] = suhu_prediction
+        data_baru['Kelembapan_1HariSebelum'] = data_baru['Kelembapan_Rata-Rata']
+        data_baru['Hujan_1HariSebelum'] = data_baru['Curah_Hujan']
+        data_baru['Matahari_1HariSebelum'] = data_baru['Sinar_Matahari']
+        
+        # Update rolling average setelah 3 hari
+        if i >= 2:
+            prev_3_suhu = hasil_prediksi.loc[i-2:i, 'Suhu_Rata-Rata'].values
+            data_baru['Suhu_Rata-Rata_Rolling3Hari'] = np.mean(prev_3_suhu)
+            
+    return hasil_prediksi
+
+# Load model
+model_rf = load_model()
+
+# Header untuk input parameters menggunakan expander
+st.markdown('<h2 style="text-align: center; padding: 20px;">🔢 Parameter Prediksi 🔢</h2>', unsafe_allow_html=True)
+
+# Menggunakan expander untuk form input
+with st.expander("🔽 Input Data Kondisi Terkini 🔽", expanded=False):
+    with st.form("input_form"):
+        st.subheader("Data Kondisi Terkini")
+        
+        # Tanggal
+        tanggal = st.date_input(
+            "Tanggal Data Terkini",
+            datetime.now().date()
+        )
+        
+        # Create two columns for better layout
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Fitur dasar untuk hari ini
+            kelembapan_rata_rata = st.number_input("Kelembapan Rata-Rata (%)", value=83.0, min_value=0.0, max_value=100.0, step=0.1)
+            curah_hujan = st.number_input("Curah Hujan (mm)", value=0.5, min_value=0.0, max_value=500.0, step=0.1)
+            sinar_matahari = st.number_input("Sinar Matahari (jam)", value=7.5, min_value=0.0, max_value=12.0, step=0.1)
+        
+        with col2:
+            # Fitur lag (1 hari sebelumnya)
+            suhu_sebelum = st.number_input("Suhu 1 Hari Sebelum (°C)", value=28.2, min_value=0.0, max_value=50.0, step=0.1)
+            kelembapan_sebelum = st.number_input("Kelembapan 1 Hari Sebelum (%)", value=83.0, min_value=0.0, max_value=100.0, step=0.1)
+            hujan_sebelum = st.number_input("Curah Hujan 1 Hari Sebelum (mm)", value=1.0, min_value=0.0, max_value=500.0, step=0.1)
+            matahari_sebelum = st.number_input("Sinar Matahari 1 Hari Sebelum (jam)", value=6.5, min_value=0.0, max_value=12.0, step=0.1)
+        
+        st.markdown("---")
+        
+        # Fitur rolling (rata-rata 3 hari)
+        st.subheader("Data Rata-rata 3 Hari Terakhir")
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            suhu_rolling = st.number_input("Suhu Rolling 3 Hari (°C)", value=28.3, min_value=0.0, max_value=50.0, step=0.1)
+            kelembapan_rolling = st.number_input("Kelembapan Rolling 3 Hari (%)", value=82.5, min_value=0.0, max_value=100.0, step=0.1)
+        
+        with col4:
+            hujan_rolling = st.number_input("Curah Hujan Rolling 3 Hari (mm)", value=0.8, min_value=0.0, max_value=500.0, step=0.1)
+            matahari_rolling = st.number_input("Sinar Matahari Rolling 3 Hari (jam)", value=7.0, min_value=0.0, max_value=12.0, step=0.1)
+        
+        st.markdown("---")
+        
+        # Jumlah hari untuk diprediksi
+        st.subheader("Parameter Prediksi")
+        hari_prediksi = st.slider("Jumlah Hari untuk Diprediksi", min_value=7, max_value=90, value=30, step=1)
+        
+        # Submit button
+        submitted = st.form_submit_button("Jalankan Prediksi")
+
+# Main content
+if model_rf is not None:
+    if submitted:
+        with st.spinner("Memproses prediksi..."):
+            # Membuat DataFrame dari input
+            data_terakhir = pd.DataFrame({
+                'TANGGAL': [pd.Timestamp(tanggal)],
+                'Kelembapan_Rata-Rata': [kelembapan_rata_rata],
+                'Curah_Hujan': [curah_hujan],
+                'Sinar_Matahari': [sinar_matahari],
+                'Hari': [pd.Timestamp(tanggal).dayofweek],
+                'Bulan': [pd.Timestamp(tanggal).month],
+                'Tahun': [pd.Timestamp(tanggal).year],
+                'Suhu_Rata-Rata_1HariSebelum': [suhu_sebelum],
+                'Kelembapan_1HariSebelum': [kelembapan_sebelum],
+                'Hujan_1HariSebelum': [hujan_sebelum],
+                'Matahari_1HariSebelum': [matahari_sebelum],
+                'Suhu_Rata-Rata_Rolling3Hari': [suhu_rolling],
+                'Kelembapan_Rolling3Hari': [kelembapan_rolling],
+                'Hujan_Rolling3Hari': [hujan_rolling],
+                'Matahari_Rolling3Hari': [matahari_rolling]
+            })
+            
+            # Run prediction
+            prediksi_masa_depan = prediksi_suhu_masa_depan(data_terakhir, hari_prediksi, model_rf)
+            
+            # Store the prediction in session state for reuse
+            st.session_state.prediksi = prediksi_masa_depan
+            st.session_state.has_prediction = True
+    
+    # Menampilkan hasil jika prediksi ada (baik dari kiriman saat ini atau sebelumnya)
+    if 'has_prediction' in st.session_state and st.session_state.has_prediction:
+        prediksi_masa_depan = st.session_state.prediksi
+        
+        # Buat tab untuk tampilan yang berbeda
+        tab1, tab2, tab3 = st.tabs(["📈 Grafik Prediksi", "📊 Statistik", "📋 Data Lengkap"])
+        
+        with tab1:
+            st.subheader("Prediksi Suhu Udara untuk {} Hari ke Depan".format(len(prediksi_masa_depan)))
+            
+            # Create Plotly figure
+            fig = go.Figure()
+            
+            fig.add_trace(
+                go.Scatter(
+                    x=prediksi_masa_depan['TANGGAL'],
+                    y=prediksi_masa_depan['Suhu_Rata-Rata'],
+                    mode='lines+markers',
+                    name='Suhu (°C)',
+                    line=dict(color='orangered', width=3),
+                    marker=dict(size=6, color='darkred')
+                )
+            )
+            
+            fig.update_layout(
+                title={
+                    'text': f"Prediksi Suhu Udara ({prediksi_masa_depan['TANGGAL'].min().strftime('%d %b %Y')} - {prediksi_masa_depan['TANGGAL'].max().strftime('%d %b %Y')})",
+                    'y':0.95,
+                    'x':0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'
+                },
+                xaxis_title="Tanggal",
+                yaxis_title="Suhu Rata-Rata (°C)",
+                hovermode="x unified",
+                height=500,
+                xaxis=dict(
+                    tickformat="%d %b %Y"
+                ),
+                yaxis=dict(
+                    gridcolor='rgba(230, 230, 230, 0.8)'
+                ),
+                plot_bgcolor='rgb(255, 255, 255)',
+                margin=dict(l=40, r=40, t=80, b=40),
+            )
+            
+            fig.update_layout(
+                xaxis=dict(
+                    rangeselector=dict(
+                        buttons=list([
+                            dict(count=7, label="7D", step="day", stepmode="backward"),
+                            dict(count=14, label="14D", step="day", stepmode="backward"),
+                            dict(count=1, label="1M", step="month", stepmode="backward"),
+                            dict(step="all")
+                        ])
+                    ),
+                    rangeslider=dict(visible=True),
+                    type="date"
+                )
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with tab2:
+            st.subheader("Statistik Prediksi Suhu")
+            
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric(
+                    "Rata-rata", 
+                    f"{prediksi_masa_depan['Suhu_Rata-Rata'].mean():.2f}°C"
+                )
+            
+            with col2:
+                st.metric(
+                    "Minimum", 
+                    f"{prediksi_masa_depan['Suhu_Rata-Rata'].min():.2f}°C"
+                )
+            
+            with col3:
+                st.metric(
+                    "Maksimum", 
+                    f"{prediksi_masa_depan['Suhu_Rata-Rata'].max():.2f}°C"
+                )
+            
+            with col4:
+                st.metric(
+                    "Standar Deviasi", 
+                    f"{prediksi_masa_depan['Suhu_Rata-Rata'].std():.2f}°C"
+                )
+            
+            st.subheader("Distribusi Suhu")
+            hist_fig = px.histogram(
+                prediksi_masa_depan, 
+                x='Suhu_Rata-Rata',
+                nbins=20,
+                labels={'Suhu_Rata-Rata': 'Suhu (°C)'},
+                title='Distribusi Prediksi Suhu',
+                color_discrete_sequence=['orangered']
+            )
+            hist_fig.update_layout(
+                xaxis_title="Suhu (°C)",
+                yaxis_title="Frekuensi",
+                bargap=0.1,
+                height=400,
+                plot_bgcolor='rgb(255, 255, 255)'
+            )
+            st.plotly_chart(hist_fig, use_container_width=True)
+
+            # Menampilkan rangkuman berdasarkan bulan
+            if len(prediksi_masa_depan) > 14:  # Hanya jika ada cukup data
+                st.subheader("Rangkuman Berdasarkan Bulan")
+                
+                # Menambahkan nama bulan ke dataframe
+                prediksi_masa_depan['Bulan_Nama'] = prediksi_masa_depan['TANGGAL'].dt.strftime('%B %Y')
+                
+                # Menghitung rata-rata per bulan
+                monthly_avg = prediksi_masa_depan.groupby('Bulan_Nama')['Suhu_Rata-Rata'].agg(['mean', 'min', 'max']).reset_index()
+                monthly_avg.columns = ['Bulan', 'Rata-rata', 'Minimum', 'Maksimum']
+                
+                # Menampilkan sebagai bar chart
+                monthly_fig = px.bar(
+                    monthly_avg,
+                    x='Bulan',
+                    y='Rata-rata',
+                    error_y=monthly_avg['Maksimum'] - monthly_avg['Rata-rata'],
+                    error_y_minus=monthly_avg['Rata-rata'] - monthly_avg['Minimum'],
+                    title='Rata-rata Suhu Bulanan',
+                    color_discrete_sequence=['orangered']
+                )
+                monthly_fig.update_layout(
+                    xaxis_title="Bulan",
+                    yaxis_title="Suhu Rata-rata (°C)",
+                    height=400,
+                    plot_bgcolor='rgb(255, 255, 255)'
+                )
+                st.plotly_chart(monthly_fig, use_container_width=True)
+        
+        with tab3:
+            st.subheader("Data Lengkap Prediksi Suhu")
+            
+            # Format tanggal untuk tampilan
+            prediksi_display = prediksi_masa_depan.copy()
+            prediksi_display['TANGGAL'] = prediksi_display['TANGGAL'].dt.strftime('%Y-%m-%d')
+            prediksi_display['Suhu_Rata-Rata'] = prediksi_display['Suhu_Rata-Rata'].round(2)
+            prediksi_display.rename(columns={'TANGGAL': 'Tanggal', 'Suhu_Rata-Rata': 'Suhu Rata-Rata (°C)'}, inplace=True)
+            
+            st.dataframe(prediksi_display, use_container_width=True)
+            
+            csv = prediksi_display.to_csv(index=False)
+            tanggal_awal = prediksi_masa_depan['TANGGAL'].min().strftime('%Y%m%d')
+            tanggal_akhir = prediksi_masa_depan['TANGGAL'].max().strftime('%Y%m%d')
+            
+            st.download_button(
+                label="📥 Download Data Prediksi (CSV)",
+                data=csv,
+                file_name=f"prediksi_suhu_{tanggal_awal}_s.d_{tanggal_akhir}.csv",
+                mime="text/csv",
+            )
+    else:
+        st.info("☝️ Masukkan parameter input di panel sebelah atas, lalu klik 'Jalankan Prediksi' untuk menghasilkan prediksi suhu udara.")
+        
+        st.subheader("Contoh Visualisasi")
+        
+        tanggal_contoh = pd.date_range(start=datetime.now().date(), periods=30)
+        suhu_contoh = np.random.normal(loc=28, scale=1, size=30).round(2)
+        df_contoh = pd.DataFrame({
+            'TANGGAL': tanggal_contoh,
+            'Suhu_Rata-Rata': suhu_contoh
+        })
+        
+        fig_contoh = go.Figure()
+        fig_contoh.add_trace(
+            go.Scatter(
+                x=df_contoh['TANGGAL'],
+                y=df_contoh['Suhu_Rata-Rata'],
+                mode='lines+markers',
+                name='Suhu (°C)',
+                line=dict(color='lightcoral', width=2, dash='dash'),
+                marker=dict(size=5, color='darkgrey')
+            )
+        )
+        fig_contoh.update_layout(
+            title="Contoh Visualisasi Prediksi Suhu (Data Simulasi)",
+            xaxis_title="Tanggal",
+            yaxis_title="Suhu Rata-Rata (°C)",
+            height=400,
+            plot_bgcolor='rgb(255, 255, 255)',
+        )
+        
+        st.plotly_chart(fig_contoh, use_container_width=True)
+        
+        st.caption("Catatan: Visualisasi di atas menggunakan data simulasi. Masukkan parameter input untuk melihat prediksi yang sebenarnya.")
+
+# Footer
+st.markdown("---")
+st.markdown("<h3 style='text-align: center;'>📚 Informasi Model</h3>", unsafe_allow_html=True)
+st.markdown("""
+Model prediksi suhu ini menggunakan algoritma Random Forest yang telah dilatih dengan data historis. Fitur input yang digunakan meliputi:
+- Kelembapan rata-rata harian
+- Curah hujan
+- Lama penyinaran matahari
+- Data historis 1 hari sebelumnya
+- Rata-rata data 3 hari sebelumnya
+- Informasi waktu (hari, bulan, tahun)
+""")
+
+# Add footer
+st.markdown("-----------")
+st.markdown("""
+<div style="text-align: center">
+    <p>Visualisasi dan Prediksi Data Cuaca Rangkaian Waktu</p>
+    <p>© 2025 - Mohammad Iqbal Maulana</p>
+</div>
+""", unsafe_allow_html=True)
