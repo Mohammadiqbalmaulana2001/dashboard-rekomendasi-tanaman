@@ -481,7 +481,7 @@ st.markdown(
 )
 
 # Muat data dari file
-X_train, X_test, y_train, y_test = joblib.load("./Dataset/split_data_joblib.pkl")
+X_train, X_test, y_train, y_test = joblib.load("./Dataset/split_data_kelembapan.pkl")
 
 # Total sampel untuk perhitungan persentase
 total_samples = X_train.shape[0] + X_test.shape[0]
