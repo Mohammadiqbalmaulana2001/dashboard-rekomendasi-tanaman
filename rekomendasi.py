@@ -255,7 +255,7 @@ else:
 # 🔹 **Memuat Model yang Sudah Disimpan**
 @st.cache_resource
 def load_model():
-    with open("./model_RandomForest copy.pkl", "rb") as file:
+    with open("./Model/model_RandomForest copy.pkl", "rb") as file:
         model = pickle.load(file)
     return model
 
@@ -347,7 +347,7 @@ with col2:
 # 🔹 **Memuat Model dari File .pkl**
 @st.cache_resource
 def load_model():
-    model_path = "./model_RandomForest copy.pkl" 
+    model_path = "./Model/model_RandomForest copy.pkl" 
     
     try:
         with open(model_path, "rb") as file:

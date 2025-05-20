@@ -7,22 +7,23 @@ css = """
     section[data-testid="stSidebar"] {
         position: relative;
     }
+
     section[data-testid="stSidebar"]:before {
-        content: "APLIKASI PERTANIAN";
+        content: "DASHBOARD PERTANIAN";
         display: block;
         padding: 1.2rem 1rem;
         font-size: 1.4rem;
         font-weight: bold;
         text-align: center;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 0.8rem;
+        margin-bottom: 1rem; /* Tambahkan jarak bawah */
     }
-    /* Tambahkan juga subtitle jika diperlukan */
+
     section[data-testid="stSidebar"]:after {
-        content: "Navigation Tanaman dan Cuaca";
+        content: "Navigasi Tanaman dan Cuaca";
         display: block;
         position: absolute;
-        top: 3.5rem;
+        top: 5.3rem; /* Atur ulang posisi top agar tidak tabrakan */
         left: 0;
         right: 0;
         padding: 0 1rem 0.8rem;
@@ -32,14 +33,14 @@ css = """
     }
 </style>
 """
+
 st.markdown(css, unsafe_allow_html=True)
 st.balloons()
 # Definisikan halaman
 rekomendasi = st.Page("rekomendasi.py", title="Rekomendasi Tanaman", icon="🌱")
-cuaca = st.Page("cuaca.py", title="Cuaca", icon="🌡️")
 kelembapan = st.Page("kelembapan.py", title="Kelembapan", icon="💧")
 suhu = st.Page("suhu.py", title="Suhu", icon="🌡️")
-
+curah_hujan = st.Page("curah_hujan.py", title="Curah Hujan", icon="🌧️")
 # Buat navigasi
-pg = st.navigation([suhu,kelembapan,rekomendasi,cuaca])
+pg = st.navigation([suhu,kelembapan,curah_hujan,rekomendasi])
 pg.run()

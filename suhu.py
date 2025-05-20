@@ -477,7 +477,7 @@ st.markdown(
 )
 
 # Muat data dari file
-file_path = os.path.join(os.path.dirname(__file__), 'Dataset', 'split_data_suhu.pkl')
+file_path = os.path.join(os.path.dirname(__file__), 'Split_Data', 'split_data_suhu.pkl')
 X_train, X_test, y_train, y_test = joblib.load(file_path)
 # Total sampel untuk perhitungan persentase
 total_samples = X_train.shape[0] + X_test.shape[0]
@@ -593,9 +593,9 @@ with col3:
 # 🤖🤖Evaluasi Model🤖🤖
 
 # Load model .joblib
-model_rf = joblib.load("./Dataset/model_suhu_rf.joblib")
-model_gb = joblib.load("./Dataset/model_suhu_gb.joblib")
-y_pred_xgb = joblib.load("./Dataset/model_suhu_xgb.joblib")
+model_rf = joblib.load("./Model/model_suhu_rf.joblib")
+model_gb = joblib.load("./Model/model_suhu_gb.joblib")
+y_pred_xgb = joblib.load("./Model/model_suhu_xgb.joblib")
 
 st.markdown("---")
 st.markdown("<h1 style='text-align: center; padding-top: 20px; padding-bottom: 40px;'>Evaluasi Model Prediksi Suhu</h1>", unsafe_allow_html=True)
@@ -1335,7 +1335,7 @@ st.markdown("<h1 style='text-align: center; padding-buttom: 80px;'>🌡️Predik
 @st.cache_resource
 def load_model():
     try:
-        return joblib.load('./Dataset/model_suhu_rf.joblib')
+        return joblib.load('./Model/model_suhu_rf.joblib')
     except FileNotFoundError:
         st.error("Model file tidak ditemukan. Pastikan file 'model_suhu_rf.joblib' ada di direktori yang sama.")
         return None
