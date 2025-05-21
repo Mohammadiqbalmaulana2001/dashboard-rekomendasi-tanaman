@@ -467,3 +467,137 @@ with tab4:
             <div class="stat-value" style="color: #FB8C00;">{sun_min:.1f} Jam</div>
         </div>
         """, unsafe_allow_html=True)
+
+
+# 🤖Pembagian Dataset Training dan Testing 🤖
+
+st.markdown("---")
+st.markdown(
+    "<h2 style='text-align: center;'>🔢 Pembagian Dataset Training dan Testing 🔢</h2>",
+    unsafe_allow_html=True
+)
+
+# Muat data dari file
+file_path = os.path.join(os.path.dirname(__file__), 'Split_Data', 'split_data_curah-hujan.pkl')
+X_train, X_test, y_train, y_test = joblib.load(file_path)
+# Total sampel untuk perhitungan persentase
+total_samples = X_train.shape[0] + X_test.shape[0]
+training_ratio = X_train.shape[0] / total_samples * 100
+testing_ratio = X_test.shape[0] / total_samples * 100
+
+# Definisi CSS untuk kartu dan tampilan visual
+st.markdown("""
+<style>
+    .dataset-card {
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .dataset-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+    }
+
+    .training-card {
+        border-left: 4px solid #1e90ff;
+        background-color: #f0f8ff;
+    }
+
+    .testing-card {
+        border-left: 4px solid #ff69b4;
+        background-color: #fff0f5;
+    }
+
+    .summary-card {
+        border-left: 4px solid #2e8b57;
+        background-color: #f0fff0;
+    }
+
+    .feature-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .dataset-card p {
+        font-size: 16px;
+        margin: 5px 0;
+    }
+
+    .dataset-card strong {
+        font-size: 17px;
+    }
+
+    .card-header {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+
+# Tata letak kolom
+col1, col2, col3 = st.columns(3)
+
+# Kolom 1: Training Set
+with col1:
+    st.markdown("<div class='card-header'>Training Set</div>", unsafe_allow_html=True)
+    
+    # Kartu untuk fitur X
+    st.markdown(f"""
+    <div class="dataset-card training-card">
+        <div class="feature-title" style="color: #1e90ff;">Fitur (X)</div>
+        <p style="color: #1e90ff;">Jumlah sampel: <strong>{X_train.shape[0]:,}</strong></p>
+        <p style="color: #1e90ff;">Jumlah fitur: <strong>{X_train.shape[1]}</strong></p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Kartu untuk target y
+    st.markdown(f"""
+    <div class="dataset-card training-card">
+        <div class="feature-title" style="color: #1e90ff;">Target (y)</div>
+        <p style="color: #1e90ff;">Jumlah sampel: <strong>{y_train.shape[0]:,}</strong></p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Kolom 2: Testing Set
+with col2:
+    st.markdown("<div class='card-header'>Testing Set</div>", unsafe_allow_html=True)
+    
+    # Kartu untuk fitur X
+    st.markdown(f"""
+    <div class="dataset-card testing-card">
+        <div class="feature-title" style="color: #ff69b4;">Fitur (X)</div>
+        <p style="color: #ff69b4;">Jumlah sampel: <strong>{X_test.shape[0]:,}</strong></p>
+        <p style="color: #ff69b4;">Jumlah fitur: <strong>{X_test.shape[1]}</strong></p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Kartu untuk target y
+    st.markdown(f"""
+    <div class="dataset-card testing-card">
+        <div class="feature-title" style="color: #ff69b4;">Target (y)</div>
+        <p style="color: #ff69b4;">Jumlah sampel: <strong>{y_test.shape[0]:,}</strong></p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Kolom 3: Ringkasan
+with col3:
+    st.markdown("<div class='card-header'>Ringkasan Pembagian Data</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="dataset-card summary-card">
+        <p style="color: #2e8b57;">Total dataset: <strong>{total_samples:,}</strong> sampel</p>
+        <p style="color: #2e8b57;">Rasio training: <strong>{training_ratio:.1f}%</strong></p>
+        <p style="color: #2e8b57;">Rasio testing: <strong>{testing_ratio:.1f}%</strong></p>
+    </div>
+    """, unsafe_allow_html=True)

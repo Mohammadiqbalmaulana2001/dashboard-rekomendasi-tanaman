@@ -502,31 +502,44 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
         text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
+    .dataset-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+    }
+
     .training-card {
         border-left: 4px solid #1e90ff;
         background-color: #f0f8ff;
     }
+
     .testing-card {
         border-left: 4px solid #ff69b4;
         background-color: #fff0f5;
     }
+
     .summary-card {
         border-left: 4px solid #2e8b57;
         background-color: #f0fff0;
     }
+
     .feature-title {
         font-weight: bold;
         margin-bottom: 10px;
         font-size: 18px;
     }
+
     .dataset-card p {
         font-size: 16px;
         margin: 5px 0;
     }
+
     .dataset-card strong {
         font-size: 17px;
     }
+
     .card-header {
         font-size: 20px;
         font-weight: bold;
@@ -535,6 +548,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Tata letak kolom
 col1, col2, col3 = st.columns(3)
