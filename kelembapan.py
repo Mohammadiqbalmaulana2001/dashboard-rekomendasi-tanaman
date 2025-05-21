@@ -46,6 +46,8 @@ st.markdown("""
 def load_data():
     try:
         data = pd.read_csv("./Dataset/dataset time series.csv")
+        # Menghapus kolom yang tidak diperlukan
+        data = data.drop(columns=["DDD_CAR", 'DDD_X'])
         
         # Mengkonversi kolom bertipe object ke numerik
         for col in ["TN", "RR"]:
