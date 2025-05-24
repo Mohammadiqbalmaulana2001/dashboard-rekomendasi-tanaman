@@ -1153,7 +1153,7 @@ with tab_compare:
     all_models_fig.update_layout(
         height=600,
         xaxis_title='Index',
-        yaxis_title='Kelembapan Rata Rata (%)',
+        yaxis_title='Curah Hujan (mm)',
         title={
             'text': 'Perbandingan Prediksi Semua Model dengan Nilai Aktual',
             'y':0.95,
